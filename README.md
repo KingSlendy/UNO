@@ -1,1 +1,1 @@
-Uno-master
+Online UNO game developed on GameMaker: Studio
