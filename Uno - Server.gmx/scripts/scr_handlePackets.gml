@@ -75,6 +75,8 @@ switch (packetID) {
         var cardColor = buffer_read(buffer, buffer_u8);
         var playerTurn = buffer_read(buffer, buffer_u8);
         var leftTurns = buffer_read(buffer, buffer_bool);
+        var sendCards = buffer_read(buffer, buffer_u16);
+        var sendAll = buffer_read(buffer, buffer_bool);
         
         for (var i = 0; i < ds_list_size(global.players); i++) {
             if (i != nowID) {
@@ -88,6 +90,23 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_u8, cardColor);
                 buffer_write(global.buffer, buffer_u8, playerTurn);
                 buffer_write(global.buffer, buffer_bool, leftTurns);
+                buffer_write(global.buffer, buffer_u16, sendCards);
+                buffer_write(global.buffer, buffer_bool, sendAll);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
+        break;
+        
+    case 5:
+        var nowID = buffer_read(buffer, buffer_u8);
+        var playerTurn = buffer_read(buffer, buffer_u8);
+        
+        for (var i = 0; i < ds_list_size(global.players); i++) {
+            if (i != nowID) {
+                var socket = ds_list_find_value(global.players, i);
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, 5);
+                buffer_write(global.buffer, buffer_u8, playerTurn);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }

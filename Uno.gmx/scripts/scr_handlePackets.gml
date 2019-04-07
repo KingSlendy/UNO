@@ -116,8 +116,11 @@ switch (packetID) {
         global.cardColor = buffer_read(buffer, buffer_u8);
         global.playerTurn = buffer_read(buffer, buffer_u8);
         global.leftTurns = buffer_read(buffer, buffer_bool);
+        global.sentNewCards = buffer_read(buffer, buffer_u16);
+        global.sendAll = buffer_read(buffer, buffer_bool);
         global.gameStarted = true;
         break;
         
+    case 5: global.playerTurn = buffer_read(buffer, buffer_u8); break;  
     default: break;
 }

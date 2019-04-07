@@ -35,7 +35,9 @@ global.cardTypes = new_array(
     new_array(3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63), //green
     new_array(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64), //blue
     array_range(41, 4), //skip
-    array_range(45, 4) //reverse
+    array_range(45, 4), //reverse
+    array_range(49, 4), //add 2
+    array_range(53, 4) //add 2 all
 );
 
 global.numberPlayers = 2;
@@ -81,6 +83,8 @@ switch (global.numberPlayers) {
 global.targetAnimation = global.playerID;
 global.playingAnimation = false;
 global.newCards = 7;
+global.sentNewCards = 0;
+global.sendAll = false;
 </string>
           </argument>
         </arguments>
@@ -276,7 +280,7 @@ var count = 0;
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[count];
     var playerY = other.playerPositionY[count];
-    draw_sprite(spr_playerBox, 0, playerX, playerY);
+    draw_sprite(spr_playerBox, global.playerTurn == networkPlayerID, playerX, playerY);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
     draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 50);

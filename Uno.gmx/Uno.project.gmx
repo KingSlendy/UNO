@@ -28,6 +28,7 @@
       <script>scripts\scr_cardMod.gml</script>
       <script>scripts\scr_cardDiv.gml</script>
       <script>scripts\scr_playAnimation.gml</script>
+      <script>scripts\scr_incrementTurn.gml</script>
     </scripts>
     <scripts name="Extra">
       <script>scripts\scr_drawTextOutline.gml</script>
@@ -54,7 +55,7 @@
     <room>rooms\rm_init</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="13">
+  <constants number="15">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -63,6 +64,8 @@
     <constant name="card_blue">5</constant>
     <constant name="card_skip">6</constant>
     <constant name="card_reverse">7</constant>
+    <constant name="card_add2">8</constant>
+    <constant name="card_add2all">9</constant>
     <constant name="stack_answer">0</constant>
     <constant name="stack_grab">1</constant>
     <constant name="stack_normal">2</constant>

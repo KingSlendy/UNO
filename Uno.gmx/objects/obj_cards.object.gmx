@@ -188,9 +188,9 @@ if (global.playerTurn == global.playerID) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted) exit;
+            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.playingAnimation) exit;
 
-if ((status == stack_grab &amp;&amp; !global.playingAnimation &amp;&amp; global.playerTurn == global.playerID) || global.targetAnimation != global.playerID ||  global.gameInitial) {
+if ((status == stack_grab &amp;&amp; global.playerTurn == global.playerID) || global.targetAnimation != global.playerID ||  global.gameInitial) {
     for (var i = 0; i &lt; global.newCards; i++) {
         var newX = global.cardX[global.targetAnimation];
         var newY = global.cardY[global.targetAnimation];
@@ -204,12 +204,39 @@ if ((status == stack_grab &amp;&amp; !global.playingAnimation &amp;&amp; global.
     exit;
 }
 
-if (!visible || status == stack_answer || holding || global.playingAnimation) exit;
+if (!visible || status == stack_answer || holding) exit;
 
 minusX = abs(mouse_x - (x - sprite_xoffset));
 minusY = abs(mouse_y - (y - sprite_yoffset));
 holding = true;
 depth = -2;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="12">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
+buffer_write(global.buffer, buffer_u8, 5);
+buffer_write(global.buffer, buffer_u8, global.playerID);
+buffer_write(global.buffer, buffer_u8, global.playerTurn);
+network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 </string>
           </argument>
         </arguments>
@@ -274,8 +301,10 @@ with (obj_cards) {
 if (instance_number(obj_cards) - 2 &gt;= 9 &amp;&amp; global.cardView + 9 &gt; instance_number(obj_cards) - 2)
     global.cardView = instance_number(obj_cards) - 2 - 9;
 
-if (global.playerTurn == global.playerID || global.gameInitial &amp;&amp; global.playerID == 0) {
+if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; global.playerID == 0)) {
     var cardStack = 0;
+    var sendCards = 0;
+    var sendAll = false;
     
     with (obj_cards) {
         if (status == stack_answer) {
@@ -283,21 +312,26 @@ if (global.playerTurn == global.playerID || global.gameInitial &amp;&amp; global
         }
     }
     
-    if (!global.gameInitial) {
-        if (array_contains(global.cardTypes[card_skip], cardStack)) {
-            global.playerTurn += cond_exp(global.leftTurns, global.numberPlayers - 2, 2);
-            global.playerTurn %= global.numberPlayers;
-        } else if (array_contains(global.cardTypes[card_reverse], cardStack)) {
-            global.leftTurns = !global.leftTurns;
-        
-            if (global.numberPlayers &gt; 2) {
-                global.playerTurn += cond_exp(global.leftTurns, global.numberPlayers - 1, 1);
-                global.playerTurn %= global.numberPlayers;
+    if (!global.gameInitial &amp;&amp; !global.sendAll) {
+        var turn = 1;
+    
+        if (global.answering) {
+            if (array_contains(global.cardTypes[card_skip], cardStack)) {
+                turn = 2;
+            } else if (array_contains(global.cardTypes[card_reverse], cardStack)) {
+                global.leftTurns = !global.leftTurns;
+            
+                if (global.numberPlayers == 2)
+                    turn = 0;
+            } else if (array_contains(global.cardTypes[card_add2], cardStack)) {
+                sendCards = 2;
+            } else if (array_contains(global.cardTypes[card_add2all], cardStack)) {
+                sendCards = 2;
+                sendAll = true;
             }
-        } else {
-            global.playerTurn += cond_exp(global.leftTurns, global.numberPlayers - 1, 1);;
-            global.playerTurn %= global.numberPlayers;
-        }
+        } 
+        
+        scr_incrementTurn(turn);
     }
 
     buffer_seek(global.buffer, buffer_seek_start, 0);
@@ -309,6 +343,8 @@ if (global.playerTurn == global.playerID || global.gameInitial &amp;&amp; global
     buffer_write(global.buffer, buffer_u8, global.cardColor);
     buffer_write(global.buffer, buffer_u8, global.playerTurn);
     buffer_write(global.buffer, buffer_bool, global.leftTurns);
+    buffer_write(global.buffer, buffer_u16, sendCards);
+    buffer_write(global.buffer, buffer_bool, sendAll);
     network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 }
 
@@ -320,6 +356,8 @@ with (obj_gameController) {
 global.gameInitial = false;
 global.gameStarted = true;
 global.newCards = 1;
+global.sentNewCards = 0;
+global.sendAll = false;
 global.answering = false;
 </string>
           </argument>

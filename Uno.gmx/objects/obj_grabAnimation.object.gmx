@@ -64,6 +64,17 @@ image_yscale = image_xscale;
                 scr_playAnimation(animation_answer, x, y, image_index);
             }
         }
+        
+        if (global.sentNewCards &gt; 0 &amp;&amp; (global.playerTurn == global.playerID || global.sendAll)) {
+            global.newCards = global.sentNewCards;
+            global.targetAnimation = global.playerID;
+            
+            with (obj_cards) {
+                if (status == stack_grab) {
+                    event_perform(ev_mouse, ev_left_press);
+                }
+            }
+        }
         break;
         
     default: break;
