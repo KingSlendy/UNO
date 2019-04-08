@@ -49,7 +49,7 @@ switch (packetID) {
     case 3:
         var playerID = buffer_read(buffer, buffer_u8);
         var answering = buffer_read(buffer, buffer_bool);
-        var newCards = buffer_read(buffer, buffer_u8);
+        var sentCards = buffer_read(buffer, buffer_u8);
         var cardSize = buffer_read(buffer, buffer_u16);
         var cardList = undefined;
         
@@ -59,17 +59,13 @@ switch (packetID) {
         if (!answering) {
             with (obj_cards) {
                 if (status == stack_grab) {
-                    global.targetAnimation = playerID;
-                    global.newCards = newCards;
+                    targets[playerID] = true;
+                    newCards[playerID] = sentCards;
                     
                     if (!is_undefined(cardList))
-                        playerList = cardList;
-                    
-                    event_perform(ev_mouse, ev_left_press);
+                        playerList[playerID] = cardList;
                 }
             }
-                
-            global.newCards = 1;
         } else {
             with (obj_networkPlayer) {
                 if (networkPlayerID == playerID) {
@@ -77,8 +73,7 @@ switch (packetID) {
                     
                     if (!is_undefined(cardList)) {
                         for (var i = 0; i < array_length_1d(cardList); i++) {
-                            //For 2vs2 -> ds_list_add(networkPlayerCards, cardList[i]);
-                            ds_list_add(networkPlayerCards, 0);
+                            ds_list_add(networkPlayerCards, cardList[i]);
                         }
                     }
                 }
@@ -91,17 +86,13 @@ switch (packetID) {
         var gameStarted = buffer_read(buffer, buffer_bool);
         var answering = buffer_read(buffer, buffer_bool);
         var cardStack = buffer_read(buffer, buffer_u8);
-        var count = 0;
         
         if (gameStarted) {
             if (answering) {
                 with (obj_networkPlayer) {
                     if (networkPlayerID == playerID) {
-                        global.targetAnimation = global.playerID;
-                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[count] + 100, obj_gameController.playerPositionY[count] + 70, 472, 352, 12, 0, cardStack);
+                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 472, 352, 12, 0, cardStack, playerID);
                     }
-                    
-                    count++;
                 }
             }
         } else {
@@ -116,8 +107,12 @@ switch (packetID) {
         global.cardColor = buffer_read(buffer, buffer_u8);
         global.playerTurn = buffer_read(buffer, buffer_u8);
         global.leftTurns = buffer_read(buffer, buffer_bool);
-        global.sentNewCards = buffer_read(buffer, buffer_u16);
+        var sentNewCards = buffer_read(buffer, buffer_u16);
         global.sendAll = buffer_read(buffer, buffer_bool);
+        
+        if (global.playerTurn == global.playerID || global.sendAll)
+            global.sentNewCards += sentNewCards;
+        
         global.gameStarted = true;
         break;
         

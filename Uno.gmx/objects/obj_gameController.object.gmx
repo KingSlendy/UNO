@@ -37,10 +37,14 @@ global.cardTypes = new_array(
     array_range(41, 4), //skip
     array_range(45, 4), //reverse
     array_range(49, 4), //add 2
-    array_range(53, 4) //add 2 all
+    array_range(53, 4), //add 2 all
+    array_range(57, 4), //change
+    array_range(61, 4), //boomerang
+    array_range(65, 5), //color
+    array_range(70, 5) //add 4
 );
 
-global.numberPlayers = 2;
+global.numberPlayers = 3;
 global.cardList = ds_list_create();
 global.gameStarted = false;
 global.gameInitial = false;
@@ -48,41 +52,46 @@ global.cardColor = 2;
 global.leftTurns = false;
 global.playerTurn = 0;
 global.cardView = 0;
-global.cardX = array_repeat(0, 4);
-global.cardY = array_repeat(0, 4);
-var initialX = new_array(112, 322, 72, 572);
-var initialY = new_array(544, 204, 304, 304);
 playerPositionX = undefined;
 playerPositionY = undefined;
-var count = 0;
-
-for (var i = global.playerID; i &lt; global.playerID + global.numberPlayers; i++) {
-    var index = i % global.numberPlayers;
-    global.cardX[index] = initialX[count];
-    global.cardY[index] = initialY[count];
-    count++;
-}
+var tempPosX = undefined;
+var tempPosY = undefined;
 
 switch (global.numberPlayers) {
     case 2:
-        playerPositionX = new_array(300);
-        playerPositionY = new_array(100);
+        tempPosX = new_array(90, 300);
+        tempPosY = new_array(440, 100);
         break;
         
     case 3:
-        playerPositionX = new_array(550, 50);
-        playerPositionY = array_repeat(200, 2);
+        tempPosX = new_array(90, 550, 50);
+        tempPosY = new_array(440, 200, 200);
         break;
         
     case 4:
-        playerPositionX = new_array(550, 300, 50);
-        playerPositionY = new_array(200, 100, 200);
+        tempPosX = new_array(90, 550, 300, 50);
+        tempPosY = new_array(440, 200, 100, 200);
         break;
 }
 
-global.targetAnimation = global.playerID;
+var count = 0;
+
+for (var i = global.playerID; i &lt; (global.playerID + global.numberPlayers); i++) {
+    var index = i % global.numberPlayers;
+    playerPositionX[index] = tempPosX[count];
+    playerPositionY[index] = tempPosY[count];
+    count++;
+}
+
+global.cardX = undefined;
+global.cardY = undefined;
+
+for (var i = 0; i &lt; global.numberPlayers; i++) {
+    global.cardX[i] = playerPositionX[i] + 22;
+    global.cardY[i] = playerPositionY[i] + 104;
+}
+
 global.playingAnimation = false;
-global.newCards = 7;
 global.sentNewCards = 0;
 global.sendAll = false;
 </string>
@@ -128,7 +137,8 @@ global.sendAll = false;
     
     with (obj_cards) {
         if (status == stack_grab) {
-            event_perform(ev_mouse, ev_left_press);
+            targets[global.playerID] = true;
+            newCards[global.playerID] = 7;
         }
     }
 }
@@ -191,7 +201,17 @@ global.sendAll = false;
 buffer_write(global.buffer, buffer_u8, 3);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_bool, global.answering);
-buffer_write(global.buffer, buffer_u8, clamp(global.newCards, 0, 7));
+
+var sendCards = 0;
+
+with (obj_cards) {
+    if (status == stack_grab) {
+        sendCards = newCards[global.playerID];
+        newCards[global.playerID] = 1;
+    }
+}
+
+buffer_write(global.buffer, buffer_u8, clamp(sendCards, 0, 7));
 buffer_write(global.buffer, buffer_u16, ds_list_size(global.cardList));
 
 for (var i = 0; i &lt; ds_list_size(global.cardList); i++)
@@ -267,7 +287,18 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>var colorNames = new_array("red", "yellow", "green", "blue");
+            <string>if (!global.gameStarted) {
+    draw_set_alpha(0.7);
+    draw_set_colour(c_black);
+    draw_rectangle(0, 0, room_width, room_height, false);
+    draw_set_font(fnt_waiting);
+    draw_set_halign(fa_center);
+    scr_drawTextOutline(400, 200, "Waiting for players...", c_white, c_black);
+    scr_drawTextOutline(400, 300, string_interp("{0}/{1}", instance_number(obj_networkPlayer) + 1), global.numberPlayers, c_white, c_black);
+    draw_set_alpha(1);
+}
+
+var colorNames = new_array("red", "yellow", "green", "blue");
 draw_set_font(fnt_text);
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
@@ -275,12 +306,11 @@ draw_set_colour(c_black);
 draw_text(0, 0, string_interp("ID: {0}", global.playerID));
 draw_text(0, 32, string_interp("Color: {0}", colorNames[global.cardColor - 2]));
 draw_text(0, 64, string_interp("Turn: {0}", global.playerTurn));
-var count = 0;
 
 with (obj_networkPlayer) {
-    var playerX = other.playerPositionX[count];
-    var playerY = other.playerPositionY[count];
-    draw_sprite(spr_playerBox, global.playerTurn == networkPlayerID, playerX, playerY);
+    var playerX = other.playerPositionX[networkPlayerID];
+    var playerY = other.playerPositionY[networkPlayerID];
+    draw_sprite(spr_playerBox, cond_exp(global.gameStarted &amp;&amp; global.playerTurn == networkPlayerID, 1, 0), playerX, playerY);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
     draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 50);
@@ -288,9 +318,7 @@ with (obj_networkPlayer) {
     scr_drawTextOutline(playerX + 30, playerY + 38, string(cardSize), c_white, c_black);
     
     for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
-        draw_sprite(spr_cardsSmall, ds_list_find_value(networkPlayerCards, i), playerX + 6 + 26 * i, playerY + 80);
-        
-    count++;
+        draw_sprite_ext(spr_cards, 0/*ds_list_find_value(networkPlayerCards, i)*/, playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 }
 </string>
           </argument>

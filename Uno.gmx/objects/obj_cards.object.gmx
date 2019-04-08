@@ -31,9 +31,45 @@ holding = false;
 minusX = 0;
 minusY = 0;
 cardID = -1;
-execute = false;
 global.answering = false;
-playerList = noone;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (status != stack_grab) exit;
+
+for (var i = 0; i &lt; array_length_1d(targets); i++) {
+    if (targets[i]) {
+        var newX = global.cardX[i];
+        var newY = global.cardY[i];
+        var newSpacing = cond_exp(i == global.playerID, 72, 26);
+    
+        for (var j = 0; j &lt; newCards[i]; j++) {
+            var animSpeed = point_distance(x, y, newX + newSpacing * j, newY) / point_distance(x, y, newX, newY);
+            scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
+        }
+    
+        targets[i] = false;
+    }
+}
 </string>
           </argument>
         </arguments>
@@ -56,32 +92,35 @@ playerList = noone;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.playingAnimation) {
-    if (execute) {
-        repeat (global.newCards) {
-            var newCard = instance_create(x, y, obj_cards);
-            newCard.visible = false;
-            
-            with (newCard) event_user(1);
-        }
-        
-        event_user(0);
-        execute = false;
-    } else {
-        with (obj_networkPlayer) {
-            if (networkPlayerID == global.targetAnimation) {
-                ds_list_clear(networkPlayerCards);
+            <string>if (status != stack_grab) exit;
+
+for (var i = 0; i &lt; global.numberPlayers; i++) {
+    if (execute[i]) {
+        if (i == global.playerID) {
+            repeat (newCards[i]) {
+                var newCard = instance_create(x, y, obj_cards);
+                newCard.visible = false;
                 
-                if (other.playerList != noone) {
-                    for (var i = 0; i &lt; array_length_1d(other.playerList); i++) {
-                        //For 2vs2 -&gt; ds_list_add(networkPlayerCards, other.playerList[i]);
-                        ds_list_add(networkPlayerCards, 0);
+                with (newCard) event_user(1);
+            }
+            
+            event_user(0);           
+        } else {
+            with (obj_networkPlayer) {
+                if (networkPlayerID == i) {
+                    ds_list_clear(networkPlayerCards);
+                    var setList = other.playerList[i];
+                    
+                    if (setList != noone) {
+                        for (var j = 0; j &lt; array_length_1d(setList); j++) {
+                            ds_list_add(networkPlayerCards, setList[j]);
+                        }
                     }
                 }
             }
         }
         
-        global.targetAnimation = global.playerID;
+        execute[i] = false;
     }
 }
 </string>
@@ -190,16 +229,9 @@ if (global.playerTurn == global.playerID) {
             <kind>1</kind>
             <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.playingAnimation) exit;
 
-if ((status == stack_grab &amp;&amp; global.playerTurn == global.playerID) || global.targetAnimation != global.playerID ||  global.gameInitial) {
-    for (var i = 0; i &lt; global.newCards; i++) {
-        var newX = global.cardX[global.targetAnimation];
-        var newY = global.cardY[global.targetAnimation];
-        var newSpacing = cond_exp(global.targetAnimation == global.playerID, 72, 26);
-        var animSpeed = point_distance(x, y, newX + newSpacing * i, newY) / point_distance(x, y, newX, newY);
-        scr_playAnimation(animation_grab, x, y, newX + newSpacing * i, newY, 12 * animSpeed, -1, 0);
-    }
-    
-    execute = (global.targetAnimation == global.playerID);
+if (status == stack_grab || global.gameInitial) {
+    if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID)
+        targets[global.playerID] = true;
     
     exit;
 }
@@ -311,6 +343,20 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
             cardStack = image_index;
         }
     }
+
+    if (global.sentNewCards &gt; 0 &amp;&amp; !array_contains(global.cardTypes[card_add2all], cardStack) &amp;&amp; !array_contains(global.cardTypes[card_add4], cardStack)) {
+        if (!global.answering || !array_contains(global.cardTypes[card_add2], cardStack)) {
+            with (obj_cards) {
+                if (status == stack_grab) {
+                    targets[global.playerID] = true;
+                    newCards[global.playerID] = global.sentNewCards;
+                    global.sentNewCards = 0;
+                    
+                    exit;
+                }
+            }
+        }
+    }
     
     if (!global.gameInitial &amp;&amp; !global.sendAll) {
         var turn = 1;
@@ -324,12 +370,14 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
                 if (global.numberPlayers == 2)
                     turn = 0;
             } else if (array_contains(global.cardTypes[card_add2], cardStack)) {
-                sendCards = 2;
+                sendCards = global.sentNewCards + 2;
             } else if (array_contains(global.cardTypes[card_add2all], cardStack)) {
                 sendCards = 2;
                 sendAll = true;
+            } else if (array_contains(global.cardTypes[card_add4], cardStack)) {
+                sendCards = 4;
             }
-        } 
+        }
         
         scr_incrementTurn(turn);
     }
@@ -355,10 +403,37 @@ with (obj_gameController) {
 
 global.gameInitial = false;
 global.gameStarted = true;
-global.newCards = 1;
 global.sentNewCards = 0;
 global.sendAll = false;
 global.answering = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="4">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (status == stack_grab) {
+    playerList = array_repeat(noone, global.numberPlayers);
+    execute = array_repeat(false, global.numberPlayers);
+    targets = array_repeat(false, global.numberPlayers);
+    newCards = array_repeat(1, global.numberPlayers);
+}
 </string>
           </argument>
         </arguments>

@@ -1,6 +1,6 @@
 ///scr_playAnimation(type, type_args...)
 /*
-    Type grab: (..., startX, startY, endX, endY, speed, action, spawn)
+    Type grab: (..., startX, startY, endX, endY, speed, action, spawn, target)
     Type answer: (..., x, y, image_index)
 */
 switch (argument[0]) {
@@ -11,6 +11,7 @@ switch (argument[0]) {
         anim.spd = argument[5];
         anim.action = argument[6];
         anim.spawn = argument[7];
+        anim.target = argument[8];
         global.playingAnimation = true;
         break;
         

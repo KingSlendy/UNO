@@ -9,7 +9,6 @@
   <sounds name="sound"/>
   <sprites name="sprites">
     <sprite>sprites\spr_cards</sprite>
-    <sprite>sprites\spr_cardsSmall</sprite>
     <sprite>sprites\spr_playerBox</sprite>
     <sprite>sprites\spr_stackArrow</sprite>
     <sprite>sprites\spr_cursor</sprite>
@@ -36,6 +35,7 @@
   </scripts>
   <fonts name="fonts">
     <font>fonts\fnt_text</font>
+    <font>fonts\fnt_waiting</font>
   </fonts>
   <objects name="objects">
     <objects name="Network">
@@ -55,7 +55,7 @@
     <room>rooms\rm_init</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="15">
+  <constants number="19">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -66,6 +66,10 @@
     <constant name="card_reverse">7</constant>
     <constant name="card_add2">8</constant>
     <constant name="card_add2all">9</constant>
+    <constant name="card_change">10</constant>
+    <constant name="card_boomerang">11</constant>
+    <constant name="card_color">12</constant>
+    <constant name="card_add4">13</constant>
     <constant name="stack_answer">0</constant>
     <constant name="stack_grab">1</constant>
     <constant name="stack_normal">2</constant>
