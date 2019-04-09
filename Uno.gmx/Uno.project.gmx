@@ -9,11 +9,13 @@
   <sounds name="sound"/>
   <sprites name="sprites">
     <sprite>sprites\spr_cards</sprite>
+    <sprite>sprites\spr_cardsOutline</sprite>
     <sprite>sprites\spr_playerBox</sprite>
     <sprite>sprites\spr_stackArrow</sprite>
     <sprite>sprites\spr_cursor</sprite>
     <sprite>sprites\spr_playerIcon</sprite>
     <sprite>sprites\spr_cardIcon</sprite>
+    <sprite>sprites\spr_dirTurns</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
   <backgrounds name="background"/>
@@ -47,6 +49,7 @@
       <object>objects\obj_cards</object>
       <object>objects\obj_grabAnimation</object>
       <object>objects\obj_answerAnimation</object>
+      <object>objects\obj_changeAnimation</object>
       <object>objects\obj_stackArrow</object>
       <object>objects\obj_cursor</object>
     </objects>
@@ -55,7 +58,7 @@
     <room>rooms\rm_init</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="19">
+  <constants number="21">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -70,11 +73,13 @@
     <constant name="card_boomerang">11</constant>
     <constant name="card_color">12</constant>
     <constant name="card_add4">13</constant>
+    <constant name="card_mystery">14</constant>
     <constant name="stack_answer">0</constant>
     <constant name="stack_grab">1</constant>
     <constant name="stack_normal">2</constant>
     <constant name="animation_grab">0</constant>
     <constant name="animation_answer">1</constant>
+    <constant name="animation_change">2</constant>
   </constants>
   <help>
     <rtf>help.rtf</rtf>

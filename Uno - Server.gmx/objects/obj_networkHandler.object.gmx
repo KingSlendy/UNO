@@ -56,7 +56,6 @@ show_debug_message("Server is up.");
     case network_type_connect:
         var socket = ds_map_find_value(async_load, "socket");
         ds_list_add(global.players, socket);
-        
         var assignID = array_index(global.availableID, true);
         
         with (instance_create(0, 0, obj_networkPlayer)) {
@@ -70,32 +69,29 @@ show_debug_message("Server is up.");
         buffer_write(global.buffer, buffer_u8, 0);
         buffer_write(global.buffer, buffer_u8, assignID);
         network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
-        show_debug_message("A player has joined.");
         break;
         
     case network_type_disconnect:
         var socket = ds_map_find_value(async_load, "socket");
         var findSocket = ds_list_find_index(global.players, socket);
         
-        with (obj_networkPlayer) {
-            if (playerID == findSocket) {
-                instance_destroy();
+        if (findSocket != -1) {
+            with (obj_networkPlayer) {
+                if (playerID == findSocket) {
+                    instance_destroy();
+                }
+            }
+        
+            ds_list_delete(global.players, findSocket);
+            global.availableID[findSocket] = true;
+            
+            for (var i = 0; i &lt; ds_list_size(global.players); i++) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, 2);
+                buffer_write(global.buffer, buffer_u8, findSocket);
+                network_send_packet(ds_list_find_value(global.players, i), global.buffer, buffer_tell(global.buffer));
             }
         }
-        
-        if (findSocket != -1)
-            ds_list_delete(global.players, findSocket);
-            
-        global.availableID[findSocket] = true;
-            
-        for (var i = 0; i &lt; ds_list_size(global.players); i++) {
-            buffer_seek(global.buffer, buffer_seek_start, 0);
-            buffer_write(global.buffer, buffer_u8, 2);
-            buffer_write(global.buffer, buffer_u8, i);
-            network_send_packet(ds_list_find_value(global.players, i), global.buffer, buffer_tell(global.buffer));
-        }
-            
-        show_debug_message("A player has left.");
         break;
         
     case network_type_data:

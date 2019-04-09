@@ -2,6 +2,7 @@
 /*
     Type grab: (..., startX, startY, endX, endY, speed, action, spawn, target)
     Type answer: (..., x, y, image_index)
+    Type change: (..., x, y, image_index)
 */
 switch (argument[0]) {
     case animation_grab:
@@ -18,5 +19,11 @@ switch (argument[0]) {
     case animation_answer:
         var anim = instance_create(argument[1], argument[2], obj_answerAnimation);
         anim.image_index = argument[3];
+        break;
+        
+    case animation_change:
+        var anim = instance_create(argument[1], argument[2], obj_changeAnimation);
+        anim.image_index = argument[3];
+        global.playingAnimation = true;
         break;
 }

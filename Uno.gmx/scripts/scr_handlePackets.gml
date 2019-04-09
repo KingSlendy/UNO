@@ -91,7 +91,7 @@ switch (packetID) {
             if (answering) {
                 with (obj_networkPlayer) {
                     if (networkPlayerID == playerID) {
-                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 472, 352, 12, 0, cardStack, playerID);
+                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 496, 352, 12, 0, cardStack, playerID);
                     }
                 }
             }

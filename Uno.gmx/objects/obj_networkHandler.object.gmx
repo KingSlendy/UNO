@@ -28,8 +28,8 @@
             <string>global.socket = network_create_socket(network_socket_tcp);
 connected = network_connect(global.socket, get_string("Enter ip.", "127.0.0.1"), 50000);
 global.buffer = buffer_create(1024, buffer_fixed, 1);
-show_debug_message("Client initialized.");
 global.playerID = 0;
+global.playerName = get_string("Enter username.", "User");
 </string>
           </argument>
         </arguments>
@@ -55,7 +55,7 @@ global.playerID = 0;
             <string>buffer_seek(global.buffer, buffer_seek_start, 0);
 buffer_write(global.buffer, buffer_u8, 1);
 buffer_write(global.buffer, buffer_u8, global.playerID);
-buffer_write(global.buffer, buffer_string, get_string("Enter name", "User"));
+buffer_write(global.buffer, buffer_string, global.playerName);
 network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 room_goto_next();
 </string>

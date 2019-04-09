@@ -28,8 +28,8 @@
             <string>randomize();
 
 global.cardTypes = new_array(
-    array_range(41, 34), //special
-    array_range(65, 10), //black
+    array_range(41, 35), //special
+    array_range(65, 11), //black
     new_array(1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61), //red
     new_array(2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62), //yellow
     new_array(3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63), //green
@@ -41,13 +41,15 @@ global.cardTypes = new_array(
     array_range(57, 4), //change
     array_range(61, 4), //boomerang
     array_range(65, 5), //color
-    array_range(70, 5) //add 4
+    array_range(70, 5), //add 4
+    75 //mystery
 );
 
-global.numberPlayers = 3;
+global.numberPlayers = 2;
 global.cardList = ds_list_create();
 global.gameStarted = false;
 global.gameInitial = false;
+global.gameFinished = false;
 global.cardColor = 2;
 global.leftTurns = false;
 global.playerTurn = 0;
@@ -94,6 +96,8 @@ for (var i = 0; i &lt; global.numberPlayers; i++) {
 global.playingAnimation = false;
 global.sentNewCards = 0;
 global.sendAll = false;
+global.answering = false;
+global.changing = false;
 </string>
           </argument>
         </arguments>
@@ -141,6 +145,10 @@ global.sendAll = false;
             newCards[global.playerID] = 7;
         }
     }
+}
+
+if (!global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
+    global.gameFinished = true;
 }
 </string>
           </argument>
@@ -287,25 +295,12 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.gameStarted) {
-    draw_set_alpha(0.7);
-    draw_set_colour(c_black);
-    draw_rectangle(0, 0, room_width, room_height, false);
-    draw_set_font(fnt_waiting);
-    draw_set_halign(fa_center);
-    scr_drawTextOutline(400, 200, "Waiting for players...", c_white, c_black);
-    scr_drawTextOutline(400, 300, string_interp("{0}/{1}", instance_number(obj_networkPlayer) + 1), global.numberPlayers, c_white, c_black);
-    draw_set_alpha(1);
-}
-
-var colorNames = new_array("red", "yellow", "green", "blue");
+            <string>var colorNames = new_array("red", "yellow", "green", "blue");
 draw_set_font(fnt_text);
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_colour(c_black);
-draw_text(0, 0, string_interp("ID: {0}", global.playerID));
-draw_text(0, 32, string_interp("Color: {0}", colorNames[global.cardColor - 2]));
-draw_text(0, 64, string_interp("Turn: {0}", global.playerTurn));
+draw_text(0, 0, string_interp("Color: {0}", colorNames[global.cardColor - 2]));
 
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
@@ -319,6 +314,19 @@ with (obj_networkPlayer) {
     
     for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
         draw_sprite_ext(spr_cards, 0/*ds_list_find_value(networkPlayerCards, i)*/, playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+}
+
+draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
+
+if (!global.gameStarted &amp;&amp; !global.gameInitial) {
+    draw_set_alpha(0.7);
+    draw_set_colour(c_black);
+    draw_rectangle(0, 0, room_width, room_height, false);
+    draw_set_font(fnt_waiting);
+    draw_set_halign(fa_center);
+    scr_drawTextOutline(400, 200, "Waiting for players...", c_white, c_black);
+    scr_drawTextOutline(400, 300, string_interp("{0}/{1}", instance_number(obj_networkPlayer) + 1, global.numberPlayers), c_white, c_black);
+    draw_set_alpha(1);
 }
 </string>
           </argument>
