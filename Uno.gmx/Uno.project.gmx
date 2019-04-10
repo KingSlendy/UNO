@@ -18,7 +18,9 @@
     <sprite>sprites\spr_dirTurns</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
-  <backgrounds name="background"/>
+  <backgrounds name="background">
+    <background>background\bgr_UNO</background>
+  </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
     <scripts name="Network">
@@ -44,6 +46,9 @@
       <object>objects\obj_networkHandler</object>
       <object>objects\obj_networkPlayer</object>
     </objects>
+    <objects name="Title">
+      <object>objects\obj_title</object>
+    </objects>
     <objects name="Game">
       <object>objects\obj_gameController</object>
       <object>objects\obj_cards</object>
@@ -55,7 +60,7 @@
     </objects>
   </objects>
   <rooms name="rooms">
-    <room>rooms\rm_init</room>
+    <room>rooms\rm_title</room>
     <room>rooms\rm_uno</room>
   </rooms>
   <constants number="21">

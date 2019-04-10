@@ -29,6 +29,7 @@
 global.buffer = buffer_create(1024, buffer_fixed, 1);
 global.players = ds_list_create();
 global.availableID = array_repeat(true, 4);
+global.playingGame = array_repeat(false, 4);
 show_debug_message("Server is up.");
 </string>
           </argument>
@@ -84,12 +85,14 @@ show_debug_message("Server is up.");
         
             ds_list_delete(global.players, findSocket);
             global.availableID[findSocket] = true;
+            global.playingGame[findSocket] = false;
             
             for (var i = 0; i &lt; ds_list_size(global.players); i++) {
+                var nowSocket = ds_list_find_value(global.players, i);
                 buffer_seek(global.buffer, buffer_seek_start, 0);
                 buffer_write(global.buffer, buffer_u8, 2);
                 buffer_write(global.buffer, buffer_u8, findSocket);
-                network_send_packet(ds_list_find_value(global.players, i), global.buffer, buffer_tell(global.buffer));
+                network_send_packet(nowSocket, global.buffer, buffer_tell(global.buffer));
             }
         }
         break;
@@ -154,14 +157,9 @@ draw_text(5, 20, string_interp("Total clients: {0}", string(ds_list_size(global.
 yy = 60;
 
 with (obj_networkPlayer) {
-    draw_text(0, other.yy, "Player " + string(playerID + 1));
-    draw_text(0, other.yy + 15, "Player name: " + playerName);
-    /*var playerPlaying = "No";
-    
-    if (playerInGame)
-        playerPlaying = "Yes";
-    
-    draw_text(5, other.yy + 35, "Player playing: " + playerPlaying);*/
+    draw_text(0, other.yy, string_interp("Player {0}", playerID + 1));
+    draw_text(0, other.yy + 15, string_interp("Player name: {0}", playerName));
+    draw_text(0, other.yy + 30, string_interp("Playing playing: {0}", cond_exp(global.playingGame[playerID], "Yes", "No")));
     other.yy += 60;
 }
 

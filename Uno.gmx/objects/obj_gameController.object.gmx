@@ -50,6 +50,7 @@ global.cardList = ds_list_create();
 global.gameStarted = false;
 global.gameInitial = false;
 global.gameFinished = false;
+global.playerWon = "User";
 global.cardColor = 2;
 global.leftTurns = false;
 global.playerTurn = 0;
@@ -103,6 +104,37 @@ global.changing = false;
         </arguments>
       </action>
     </event>
+    <event eventtype="3" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
+    global.playerWon = global.playerName;
+    buffer_seek(global.buffer, buffer_seek_start, 0);
+    buffer_write(global.buffer, buffer_u8, 5);
+    buffer_write(global.buffer, buffer_u8, global.playerID);
+    buffer_write(global.buffer, buffer_string, global.playerWon);
+    network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+    global.gameFinished = true;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="3" enumb="1">
       <action>
         <libid>1</libid>
@@ -145,10 +177,6 @@ global.changing = false;
             newCards[global.playerID] = 7;
         }
     }
-}
-
-if (!global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
-    global.gameFinished = true;
 }
 </string>
           </argument>
@@ -231,30 +259,6 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         </arguments>
       </action>
     </event>
-    <event eventtype="7" enumb="4">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>if (!instance_exists(obj_cursor))
-    instance_create(0, 0, obj_cursor);
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
     <event eventtype="7" enumb="3">
       <action>
         <libid>1</libid>
@@ -305,7 +309,7 @@ draw_text(0, 0, string_interp("Color: {0}", colorNames[global.cardColor - 2]));
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
     var playerY = other.playerPositionY[networkPlayerID];
-    draw_sprite(spr_playerBox, cond_exp(global.gameStarted &amp;&amp; global.playerTurn == networkPlayerID, 1, 0), playerX, playerY);
+    draw_sprite(spr_playerBox, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, 1, 0), playerX, playerY);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
     draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 50);
@@ -322,11 +326,37 @@ if (!global.gameStarted &amp;&amp; !global.gameInitial) {
     draw_set_alpha(0.7);
     draw_set_colour(c_black);
     draw_rectangle(0, 0, room_width, room_height, false);
+    draw_set_alpha(1);
     draw_set_font(fnt_waiting);
     draw_set_halign(fa_center);
     scr_drawTextOutline(400, 200, "Waiting for players...", c_white, c_black);
     scr_drawTextOutline(400, 300, string_interp("{0}/{1}", instance_number(obj_networkPlayer) + 1, global.numberPlayers), c_white, c_black);
     draw_set_alpha(1);
+}
+
+if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playingAnimation &amp;&amp; global.gameFinished) {
+    draw_set_alpha(0.7);
+    draw_set_colour(c_black);
+    draw_rectangle(0, 0, room_width, room_height, false);
+    draw_set_alpha(1);
+    draw_set_font(fnt_waiting);
+    draw_set_halign(fa_center);
+    scr_drawTextOutline(400, 200, string_interp("{0} won the game!", global.playerWon), c_yellow, c_black);
+    draw_set_colour(c_red);
+    draw_rectangle(300, 300, 500, 400, false);
+    draw_set_colour(c_black);
+    draw_rectangle(300, 300, 500, 400, true);
+    draw_set_valign(fa_middle);
+    scr_drawTextOutline(400, 350, "Play#again", c_white, c_black);
+    draw_set_alpha(1);
+    
+    if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 300, 400) &amp;&amp; mouse_check_button_pressed(mb_left)) {
+        buffer_seek(global.buffer, buffer_seek_start, 0);
+        buffer_write(global.buffer, buffer_u8, 6);
+        buffer_write(global.buffer, buffer_u8, global.playerID);
+        network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+        room_goto_previous();
+    }
 }
 </string>
           </argument>

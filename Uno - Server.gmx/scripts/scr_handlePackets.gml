@@ -8,31 +8,39 @@ switch (packetID) {
         var nowID = buffer_read(buffer, buffer_u8);
         var nowName = buffer_read(buffer, buffer_string);
         var playerSize = ds_list_size(global.players);
-        var listID;
         var listName;
-        var count = 0;
+        var listPlaying;
+        global.playingGame[nowID] = true;
         
         with (obj_networkPlayer) {
-            if (nowID == playerID)
+            if (playerID == nowID) {
                 playerName = nowName;
-        
-            listID[count] = playerID;
-            listName[count] = playerName;
-            count++;
+            }
         }
         
         for (var i = 0; i < playerSize; i++) {
-            var socket = ds_list_find_value(global.players, i);
-            buffer_seek(global.buffer, buffer_seek_start, 0);
-            buffer_write(global.buffer, buffer_u8, 1);
-            buffer_write(global.buffer, buffer_u8, playerSize);
-            
-            for (var j = 0; j < playerSize; j++) {
-                buffer_write(global.buffer, buffer_u8, listID[j]);
-                buffer_write(global.buffer, buffer_string, listName[j]);
+            with (obj_networkPlayer) {
+                if (playerID == i) {
+                    listName[playerID] = playerName;
+                    listPlaying[playerID] = global.playingGame[playerID];
+                }
             }
+        }
+        
+        for (var i = 0; i < playerSize; i++) {
+            if (global.playingGame[i]) {
+                var socket = ds_list_find_value(global.players, i);
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, 1);
+                buffer_write(global.buffer, buffer_u8, playerSize);
                 
-            network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+                for (var j = 0; j < playerSize; j++) {
+                    buffer_write(global.buffer, buffer_string, listName[j]);
+                    buffer_write(global.buffer, buffer_bool, listPlaying[j]);
+                }
+                    
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
         }
         break;
         
@@ -99,17 +107,22 @@ switch (packetID) {
         
     case 5:
         var nowID = buffer_read(buffer, buffer_u8);
-        var playerTurn = buffer_read(buffer, buffer_u8);
+        var playerWon = buffer_read(buffer, buffer_string);
         
         for (var i = 0; i < ds_list_size(global.players); i++) {
             if (i != nowID) {
                 var socket = ds_list_find_value(global.players, i);
                 buffer_seek(global.buffer, buffer_seek_start, 0);
                 buffer_write(global.buffer, buffer_u8, 5);
-                buffer_write(global.buffer, buffer_u8, playerTurn);
+                buffer_write(global.buffer, buffer_string, playerWon);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }
+        break;
+        
+    case 6:
+        var nowID = buffer_read(buffer, buffer_u8);
+        global.playingGame[nowID] = false;
         break;
         
     default: break;

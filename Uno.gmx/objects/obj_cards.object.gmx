@@ -174,7 +174,7 @@ outlineIndex %= sprite_get_number(spr_cardsOutline);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (status != stack_normal || !holding) exit;
+            <string>if (status != stack_normal || !holding || global.gameFinished) exit;
 
 holding = false;
 depth = -1;
@@ -238,7 +238,7 @@ if (global.playerTurn == global.playerID) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.playingAnimation) exit;
+            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished || global.playingAnimation) exit;
 
 if (status == stack_grab || global.gameInitial) {
     if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID)
@@ -253,33 +253,6 @@ minusX = abs(mouse_x - (x - sprite_xoffset));
 minusY = abs(mouse_y - (y - sprite_yoffset));
 holding = true;
 depth = -2;
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="7" enumb="12">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
-buffer_write(global.buffer, buffer_u8, 5);
-buffer_write(global.buffer, buffer_u8, global.playerID);
-buffer_write(global.buffer, buffer_u8, global.playerTurn);
-network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 </string>
           </argument>
         </arguments>
@@ -493,7 +466,7 @@ global.changing = false;
             <kind>1</kind>
             <string>draw_self();
 
-if (status != stack_normal || !place_meeting(x, y, obj_cursor)) exit;
+if (global.gameFinished || status != stack_normal || !place_meeting(x, y, obj_cursor)) exit;
 
 draw_sprite(spr_cardsOutline, floor(outlineIndex), x, y);
 </string>

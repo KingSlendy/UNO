@@ -100,7 +100,7 @@ if (instance_number(obj_cards) - 2 &gt; 9)
             <kind>1</kind>
             <string>var topCard = instance_place(x, y, obj_cards);
 
-if (!visible || (topCard != noone &amp;&amp; topCard.holding)) exit;
+if (global.gameFinished || !visible || (topCard != noone &amp;&amp; topCard.holding)) exit;
 
 event_user(0);
 </string>
