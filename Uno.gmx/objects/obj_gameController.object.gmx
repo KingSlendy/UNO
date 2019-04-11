@@ -121,7 +121,7 @@ global.changing = false;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
+            <string>if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.changing &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
     global.playerWon = global.playerName;
     buffer_seek(global.buffer, buffer_seek_start, 0);
     buffer_write(global.buffer, buffer_u8, 5);

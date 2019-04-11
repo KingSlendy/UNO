@@ -1,6 +1,6 @@
 ///scr_handlePackets(buffer, socket)
 var buffer = argument[0];
-var socket = argument[1];
+var sentSocket = argument[1];
 var packetID = buffer_read(buffer, buffer_u8);
 
 switch (packetID) {
@@ -108,7 +108,8 @@ switch (packetID) {
     case 5:
         var nowID = buffer_read(buffer, buffer_u8);
         var playerWon = buffer_read(buffer, buffer_string);
-        
+        global.playingGame[0] = false;
+                
         for (var i = 0; i < ds_list_size(global.players); i++) {
             if (i != nowID) {
                 var socket = ds_list_find_value(global.players, i);
@@ -123,6 +124,26 @@ switch (packetID) {
     case 6:
         var nowID = buffer_read(buffer, buffer_u8);
         global.playingGame[nowID] = false;
+        break;
+        
+    case 7:
+        var nowID = buffer_read(buffer, buffer_u8);
+        var response = false;
+        var message = "";
+        
+        if (nowID == 0) {
+            response = array_all(global.playingGame, false);
+            message = "Can't host. There's a person playing.";
+        } else {
+            response = (global.playingGame[0] == true);
+            message = "Can't join. Player hasn't hosted a game yet.";
+        }
+        
+        buffer_seek(global.buffer, buffer_seek_start, 0);
+        buffer_write(global.buffer, buffer_u8, 7);
+        buffer_write(global.buffer, buffer_bool, response);
+        buffer_write(global.buffer, buffer_string, message);
+        network_send_packet(sentSocket, global.buffer, buffer_tell(global.buffer));
         break;
         
     default: break;

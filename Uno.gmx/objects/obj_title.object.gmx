@@ -8,6 +8,32 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="7" enumb="10">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
+buffer_write(global.buffer, buffer_u8, 7);
+buffer_write(global.buffer, buffer_u8, global.playerID);
+network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
@@ -34,11 +60,8 @@ draw_rectangle(300, 400, 500, 500, true);
 draw_set_valign(fa_middle);
 scr_drawTextOutline(400, 450, string_interp("{0}#game", cond_exp(global.playerID == 0, "Host", "Join")), c_white, c_black);
 
-if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 400, 500) &amp;&amp; mouse_check_button_pressed(mb_left)) {
-    with (obj_networkHandler) {
-        alarm[0] = 1;
-    }
-}
+if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 400, 500) &amp;&amp; mouse_check_button_pressed(mb_left))
+    event_user(0);
 </string>
           </argument>
         </arguments>

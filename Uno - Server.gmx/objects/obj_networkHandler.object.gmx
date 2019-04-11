@@ -99,7 +99,7 @@ show_debug_message("Server is up.");
         
     case network_type_data:
         var buffer = ds_map_find_value(async_load, "buffer");
-        var socket = ds_map_find_value(async_load, "socket");
+        var socket = ds_map_find_value(async_load, "id");
         buffer_seek(buffer, buffer_seek_start, 0);
         scr_handlePackets(buffer, socket);
         break;

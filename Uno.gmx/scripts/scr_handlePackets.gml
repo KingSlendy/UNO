@@ -109,6 +109,17 @@ switch (packetID) {
         global.playerWon = buffer_read(buffer, buffer_string);
         global.gameFinished = true;
         break;
+        
+    case 7:
+        var response = buffer_read(buffer, buffer_bool);
+        var message = buffer_read(buffer, buffer_string);
+        
+        if (response) {
+            obj_networkHandler.alarm[0] = 1;
+        } else {
+            show_message(message);
+        }
+        break;
           
     default: break;
 }

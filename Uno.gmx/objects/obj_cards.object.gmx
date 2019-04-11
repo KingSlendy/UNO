@@ -68,6 +68,7 @@ for (var i = 0; i &lt; array_length_1d(targets); i++) {
             scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
         }
     
+        backAngle[i] = irandom_range(-15, 15);
         targets[i] = false;
     }
 }
@@ -441,6 +442,10 @@ global.changing = false;
     execute = array_repeat(false, global.numberPlayers);
     targets = array_repeat(false, global.numberPlayers);
     newCards = array_repeat(1, global.numberPlayers);
+    backAngle = array_repeat(0, 4);
+    
+    for (var i = 0; i &lt; 4; i++)
+        backAngle[i] = irandom_range(-15, 15);
 }
 </string>
           </argument>
@@ -465,6 +470,12 @@ global.changing = false;
           <argument>
             <kind>1</kind>
             <string>draw_self();
+
+if (status == stack_grab) {
+    for (var i = 0; i &lt; 4; i++) {
+        draw_sprite_ext(spr_cards, 0, x, y, 1, 1, backAngle[i], c_white, 1);
+    }
+}
 
 if (global.gameFinished || status != stack_normal || !place_meeting(x, y, obj_cursor)) exit;
 
