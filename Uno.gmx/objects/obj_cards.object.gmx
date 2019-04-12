@@ -68,7 +68,7 @@ for (var i = 0; i &lt; array_length_1d(targets); i++) {
             scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
         }
     
-        backAngle[i] = irandom_range(-15, 15);
+        backAngle[i] = irandom_range(-10, 10);
         targets[i] = false;
     }
 }
@@ -322,6 +322,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     var cardStack = 0;
     var sendCards = 0;
     var sendAll = false;
+    var usedBoomerang = false;
     
     with (obj_cards) {
         if (status == stack_answer) {
@@ -329,16 +330,14 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
         }
     }
 
-    if (global.sentNewCards &gt; 0 &amp;&amp; !array_contains(global.cardTypes[card_add2all], cardStack) &amp;&amp; !array_contains(global.cardTypes[card_add4], cardStack)) {
-        if (!global.answering || !array_contains(global.cardTypes[card_add2], cardStack)) {
-            with (obj_cards) {
-                if (status == stack_grab) {
-                    targets[global.playerID] = true;
-                    newCards[global.playerID] = global.sentNewCards;
-                    global.sentNewCards = 0;
-                    
-                    exit;
-                }
+    if (global.sentNewCards &gt; 0 &amp;&amp; (!global.answering || (!array_contains(global.cardTypes[card_add2], cardStack) &amp;&amp; !array_contains(global.cardTypes[card_boomerang], cardStack)))) {
+        with (obj_cards) {
+            if (status == stack_grab) {
+                targets[global.playerID] = true;
+                newCards[global.playerID] = global.sentNewCards;
+                global.sentNewCards = 0;
+                
+                exit;
             }
         }
     }
@@ -381,7 +380,10 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
                 sendCards = global.sentNewCards + 2;
             } else if (array_contains(global.cardTypes[card_add2all], cardStack)) {
                 sendCards = 2;
-                sendAll = true;
+                sendAll = (global.numberPlayers &gt; 2);
+            } else if (array_contains(global.cardTypes[card_boomerang], cardStack)) {
+                sendCards = global.sentNewCards;
+                usedBoomerang = true;
             } else if (array_contains(global.cardTypes[card_add4], cardStack)) {
                 sendCards = 4;
             }
@@ -401,6 +403,8 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     buffer_write(global.buffer, buffer_bool, global.leftTurns);
     buffer_write(global.buffer, buffer_u16, sendCards);
     buffer_write(global.buffer, buffer_bool, sendAll);
+    buffer_write(global.buffer, buffer_bool, usedBoomerang);
+    buffer_write(global.buffer, buffer_u8, global.playerAttacking);
     network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 }
 
@@ -413,6 +417,8 @@ global.gameInitial = false;
 global.gameStarted = true;
 global.sentNewCards = 0;
 global.sendAll = false;
+global.usedBoomerang = false;
+global.playerAttacking = -1;
 global.answering = false;
 global.changing = false;
 </string>
@@ -445,7 +451,7 @@ global.changing = false;
     backAngle = array_repeat(0, 4);
     
     for (var i = 0; i &lt; 4; i++)
-        backAngle[i] = irandom_range(-15, 15);
+        backAngle[i] = irandom_range(-10, 10);
 }
 </string>
           </argument>

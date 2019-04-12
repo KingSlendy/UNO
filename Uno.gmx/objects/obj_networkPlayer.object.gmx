@@ -27,6 +27,7 @@
             <kind>1</kind>
             <string>networkPlayerID = 0;
 networkPlayerName = "User";
+networkPlayerTeam = team_noone;
 networkPlayerCards = ds_list_create();
 </string>
           </argument>

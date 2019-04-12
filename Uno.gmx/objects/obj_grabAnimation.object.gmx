@@ -66,20 +66,37 @@ switch (action) {
             }
         }
         
-        if (global.sentNewCards &gt; 0 &amp;&amp; (global.playerTurn == global.playerID || global.sendAll)) {
+        if (global.sentNewCards &gt; 0 &amp;&amp; (global.playerTurn == global.playerID || (global.usedBoomerang &amp;&amp; global.playerAttacking == global.playerID) || global.sendAll)) {
+            var hasBoomerang = false;
             var hasAdd2 = false;
             
-            if (!array_contains(global.cardTypes[card_add2all], spawn) &amp;&amp; !array_contains(global.cardTypes[card_add4], spawn)) {
+            if (global.playerTurn == global.playerID) {
                 for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
-                    if (array_contains(global.cardTypes[card_add2], ds_list_find_value(global.cardList, i))) {
-                        hasAdd2 = true;
+                    var currentCard = ds_list_find_value(global.cardList, i);
+                    var condition = (currentCard == 61 + (global.cardColor - 2));
+                    
+                    if (array_contains(global.cardTypes[card_boomerang], spawn))
+                        condition = array_contains(global.cardTypes[card_boomerang], currentCard);
+                    
+                    if (condition) {
+                        hasBoomerang = true;
                         
                         break;
                     }
                 }
+                
+                if (array_contains(global.cardTypes[card_add2], spawn)) {
+                    for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
+                        if (array_contains(global.cardTypes[card_add2], ds_list_find_value(global.cardList, i))) {
+                            hasAdd2 = true;
+                            
+                            break;
+                        }
+                    }
+                }
             }
                 
-            if (!hasAdd2) {
+            if (!hasBoomerang &amp;&amp; !hasAdd2) {
                 with (obj_cards) {
                     if (status == stack_grab) {
                         targets[global.playerID] = true;

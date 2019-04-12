@@ -3,7 +3,7 @@
   <spriteName>&lt;undefined&gt;</spriteName>
   <solid>0</solid>
   <visible>-1</visible>
-  <depth>0</depth>
+  <depth>1</depth>
   <persistent>0</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -46,6 +46,7 @@ global.cardTypes = new_array(
 );
 
 global.numberPlayers = 2;
+global.currentTeam = team_noone;
 global.cardList = ds_list_create();
 global.gameStarted = false;
 global.gameInitial = false;
@@ -97,6 +98,8 @@ for (var i = 0; i &lt; global.numberPlayers; i++) {
 global.playingAnimation = false;
 global.sentNewCards = 0;
 global.sendAll = false;
+global.playerAttacking = -1;
+global.usedBoomerang = false;
 global.answering = false;
 global.changing = false;
 </string>
@@ -128,6 +131,7 @@ global.changing = false;
     buffer_write(global.buffer, buffer_u8, global.playerID);
     buffer_write(global.buffer, buffer_string, global.playerWon);
     network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+    depth = -20;
     global.gameFinished = true;
 }
 </string>
@@ -299,25 +303,30 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>var colorNames = new_array("red", "yellow", "green", "blue");
-draw_set_font(fnt_text);
+            <string>draw_set_font(fnt_text);
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_colour(c_black);
-draw_text(0, 0, string_interp("Color: {0}", colorNames[global.cardColor - 2]));
+scr_drawBox(0, 488, 800, 600, c_white, 0.6, c_black);
+scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 0.6, c_black);
+draw_sprite(spr_playerIcon, 0, 16, 424);
+scr_drawTextOutline(38, 411, global.playerName, c_white, c_black);
+draw_sprite(spr_cardIcon, 0, 14, 460);
+scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
+draw_sprite(spr_cardColor, global.cardColor - 2, 72, 450);
 
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
     var playerY = other.playerPositionY[networkPlayerID];
-    draw_sprite(spr_playerBox, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, 1, 0), playerX, playerY);
+    scr_drawBox(playerX, playerY, playerX + 200, playerY + 140, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, c_yellow, c_white), 0.6, c_black);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
-    draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 50);
+    draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 52);
     var cardSize = ds_list_size(networkPlayerCards);
     scr_drawTextOutline(playerX + 30, playerY + 38, string(cardSize), c_white, c_black);
     
     for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
-        draw_sprite_ext(spr_cards, 0/*ds_list_find_value(networkPlayerCards, i)*/, playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+        draw_sprite_ext(spr_cards, cond_exp(networkPlayerTeam != team_noone &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 }
 
 draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
@@ -381,6 +390,37 @@ if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playing
           <argument>
             <kind>1</kind>
             <string>game_restart();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="13">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var newCard = instance_create(x, y, obj_cards);
+newCard.visible = false;
+newCard.image_index = clamp(get_integer("Enter card index.", 1), 1, 75);
+
+with (obj_cards) {
+    if (status == stack_grab) {
+        event_user(0);
+    }
+}
 </string>
           </argument>
         </arguments>

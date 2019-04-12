@@ -33,6 +33,7 @@ switch (packetID) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
                 buffer_write(global.buffer, buffer_u8, 1);
                 buffer_write(global.buffer, buffer_u8, playerSize);
+                buffer_write(global.buffer, buffer_u8, nowID);
                 
                 for (var j = 0; j < playerSize; j++) {
                     buffer_write(global.buffer, buffer_string, listName[j]);
@@ -85,6 +86,8 @@ switch (packetID) {
         var leftTurns = buffer_read(buffer, buffer_bool);
         var sendCards = buffer_read(buffer, buffer_u16);
         var sendAll = buffer_read(buffer, buffer_bool);
+        var usedBoomerang = buffer_read(buffer, buffer_bool);
+        var playerAttacking = buffer_read(buffer, buffer_u8);
         
         for (var i = 0; i < ds_list_size(global.players); i++) {
             if (i != nowID) {
@@ -100,6 +103,8 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_bool, leftTurns);
                 buffer_write(global.buffer, buffer_u16, sendCards);
                 buffer_write(global.buffer, buffer_bool, sendAll);
+                buffer_write(global.buffer, buffer_bool, usedBoomerang);
+                buffer_write(global.buffer, buffer_u8, playerAttacking);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }

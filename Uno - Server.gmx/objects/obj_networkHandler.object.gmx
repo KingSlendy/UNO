@@ -30,6 +30,7 @@ global.buffer = buffer_create(1024, buffer_fixed, 1);
 global.players = ds_list_create();
 global.availableID = array_repeat(true, 4);
 global.playingGame = array_repeat(false, 4);
+global.numberPlayers = 2;
 show_debug_message("Server is up.");
 </string>
           </argument>

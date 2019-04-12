@@ -7,6 +7,7 @@ switch (packetID) {
         
     case 1:
         var playerSize = buffer_read(buffer, buffer_u8);
+        var nowID = buffer_read(buffer, buffer_u8);
         
         for (var i = 0; i < playerSize; i++) {
             var nowName = buffer_read(buffer, buffer_string);
@@ -15,8 +16,8 @@ switch (packetID) {
         
             with (obj_networkPlayer)
                 exists = (i == networkPlayerID);
-            
-            if (exists || i == global.playerID || !nowPlaying) continue;
+
+            if (exists || i == global.playerID || (nowID != global.playerID && i != nowID) || !nowPlaying) continue;
             
             var remote = instance_create(0, 0, obj_networkPlayer);
             remote.networkPlayerID = i;
@@ -98,6 +99,9 @@ switch (packetID) {
         global.leftTurns = buffer_read(buffer, buffer_bool);
         var sentNewCards = buffer_read(buffer, buffer_u16);
         global.sendAll = buffer_read(buffer, buffer_bool);
+        global.usedBoomerang = buffer_read(buffer, buffer_bool);
+        var playerAttacking = buffer_read(buffer, buffer_u8);
+        global.playerAttacking = cond_exp(!global.usedBoomerang && sentNewCards > 0, playerID, playerAttacking);
         
         if (global.playerTurn == global.playerID || global.sendAll)
             global.sentNewCards += sentNewCards;

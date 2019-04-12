@@ -10,11 +10,11 @@
   <sprites name="sprites">
     <sprite>sprites\spr_cards</sprite>
     <sprite>sprites\spr_cardsOutline</sprite>
-    <sprite>sprites\spr_playerBox</sprite>
     <sprite>sprites\spr_stackArrow</sprite>
     <sprite>sprites\spr_cursor</sprite>
     <sprite>sprites\spr_playerIcon</sprite>
     <sprite>sprites\spr_cardIcon</sprite>
+    <sprite>sprites\spr_cardColor</sprite>
     <sprite>sprites\spr_dirTurns</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
@@ -31,6 +31,7 @@
       <script>scripts\scr_cardMod.gml</script>
       <script>scripts\scr_cardDiv.gml</script>
       <script>scripts\scr_playAnimation.gml</script>
+      <script>scripts\scr_drawBox.gml</script>
       <script>scripts\scr_incrementTurn.gml</script>
     </scripts>
     <scripts name="Extra">
@@ -63,7 +64,7 @@
     <room>rooms\rm_title</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="21">
+  <constants number="24">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -85,6 +86,9 @@
     <constant name="animation_grab">0</constant>
     <constant name="animation_answer">1</constant>
     <constant name="animation_change">2</constant>
+    <constant name="team_noone">-1</constant>
+    <constant name="team_red">0</constant>
+    <constant name="team_blue">1</constant>
   </constants>
   <help>
     <rtf>help.rtf</rtf>
