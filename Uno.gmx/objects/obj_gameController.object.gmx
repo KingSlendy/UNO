@@ -312,7 +312,6 @@ draw_sprite(spr_playerIcon, 0, 16, 424);
 scr_drawTextOutline(38, 411, global.playerName, c_white, c_black);
 draw_sprite(spr_cardIcon, 0, 14, 460);
 scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
-draw_sprite(spr_cardColor, global.cardColor - 2, 72, 450);
 
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
@@ -329,6 +328,7 @@ with (obj_networkPlayer) {
 }
 
 draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
+draw_sprite(spr_cardColor, global.cardColor - 2, 400, 352);
 
 if (!global.gameStarted &amp;&amp; !global.gameInitial) {
     draw_set_alpha(0.7);

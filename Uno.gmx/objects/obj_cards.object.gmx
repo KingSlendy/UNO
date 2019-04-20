@@ -175,12 +175,12 @@ outlineIndex %= sprite_get_number(spr_cardsOutline);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (status != stack_normal || !holding || global.playingAnimation || global.gameFinished) exit;
+            <string>if (status != stack_normal || !holding) exit;
 
 holding = false;
 depth = -1;
 
-if (global.playerTurn == global.playerID) {
+if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished) {
     if (place_meeting(x, y, obj_cards)) {
         with (instance_place(x, y, obj_cards)) {
             if (status == stack_answer) {

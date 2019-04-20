@@ -1,20 +1,20 @@
 ///scr_handlePackets(buffer, socket)
-var buffer = argument[0];
-var sentSocket = argument[1];
-var packetID = buffer_read(buffer, buffer_u8);
+var buffer = argument[0]; //The buffer sent to the network
+var sentSocket = argument[1]; //The socket of the player that sent the packet
+var packetID = buffer_read(buffer, buffer_u8); //The type of packet sent
 
 switch (packetID) {
-    case 1:
-        var nowID = buffer_read(buffer, buffer_u8);
-        var nowName = buffer_read(buffer, buffer_string);
+    case 1: //Information about the players in the server. This is sent when you press "Host/Join"
+        var nowID = buffer_read(buffer, buffer_u8); //Player that sent the packet
+        var nowName = buffer_read(buffer, buffer_string); //Name of the player that sent the packet
         
-        if (nowID == 0)
+        if (nowID == 0) //If the ID of the player is 0 read the number of players sent
             global.numberPlayers = buffer_read(buffer, buffer_u8);
         
         var playerSize = ds_list_size(global.players);
         var listName;
         var listPlaying;
-        global.playingGame[nowID] = true;
+        global.playingGame[nowID] = true; //Sets that player to "playing"
         
         with (obj_networkPlayer) {
             if (playerID == nowID) {
