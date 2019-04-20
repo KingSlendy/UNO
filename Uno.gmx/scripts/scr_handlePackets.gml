@@ -3,32 +3,34 @@ var buffer = argument[0];
 var packetID = buffer_read(buffer, buffer_u8);
 
 switch (packetID) {
-    case 0: global.playerID = buffer_read(buffer, buffer_u8); break;
+    case packets.playerJoined: global.playerID = buffer_read(buffer, buffer_u8); break;
         
-    case 1:
-        playerSize = buffer_read(buffer, buffer_u8);
+    case packets.playersInfo:
         var nowID = buffer_read(buffer, buffer_u8);
         global.numberPlayers = buffer_read(buffer, buffer_u8);
         
-        for (var i = 0; i < playerSize; i++) {
-            var nowName = buffer_read(buffer, buffer_string);
-            var nowPlaying = buffer_read(buffer, buffer_bool);
-            var exists = false;
-        
-            with (obj_networkPlayer)
-                exists = (i == networkPlayerID);
-
-            if (exists || i == global.playerID || (nowID != global.playerID && i != nowID) || !nowPlaying) continue;
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var checkPlayer = buffer_read(buffer, buffer_bool);
             
-            var remote = instance_create(0, 0, obj_networkPlayer);
-            remote.networkPlayerID = i;
-            remote.networkPlayerName = nowName;
+            if (checkPlayer) {
+                var nowName = buffer_read(buffer, buffer_string);
+                var nowPlaying = buffer_read(buffer, buffer_bool);
+                var exists = false;
+            
+                with (obj_networkPlayer) exists = (i == networkPlayerID);
+    
+                if (exists || i == global.playerID || (nowID != global.playerID && i != nowID) || !nowPlaying) continue;
+                
+                var remote = instance_create(0, 0, obj_networkPlayer);
+                remote.networkPlayerID = i;
+                remote.networkPlayerName = nowName;
+            }
         }
         
         if (room == rm_title) room_goto_next();
         break;
         
-    case 2:
+    case packets.playerLeaving:
         var playerID = buffer_read(buffer, buffer_u8);
         
         with (obj_networkPlayer) {
@@ -39,7 +41,7 @@ switch (packetID) {
         }
         break;
         
-    case 3:
+    case packets.playerCardsUpdate:
         var playerID = buffer_read(buffer, buffer_u8);
         var answering = buffer_read(buffer, buffer_bool);
         var sentCards = buffer_read(buffer, buffer_u8);
@@ -74,7 +76,7 @@ switch (packetID) {
         }
         break;
         
-    case 4:
+    case packets.playerTurnInfo:
         var playerID = buffer_read(buffer, buffer_u8);
         var gameStarted = buffer_read(buffer, buffer_bool);
         var answering = buffer_read(buffer, buffer_bool);
@@ -119,12 +121,12 @@ switch (packetID) {
         global.gameStarted = true;
         break;
         
-    case 5:
+    case packets.playerWon:
         global.playerWon = buffer_read(buffer, buffer_string);
         global.gameFinished = true;
         break;
         
-    case 7:
+    case packets.canHostJoin:
         var response = buffer_read(buffer, buffer_bool);
         var message = buffer_read(buffer, buffer_string);
         

@@ -71,17 +71,19 @@ switch (action) {
             var hasAdd2 = false;
             
             if (global.playerTurn == global.playerID) {
-                for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
-                    var currentCard = ds_list_find_value(global.cardList, i);
-                    var condition = (currentCard == 61 + (global.cardColor - 2));
-                    
-                    if (array_contains(global.cardTypes[card_boomerang], spawn))
-                        condition = array_contains(global.cardTypes[card_boomerang], currentCard);
-                    
-                    if (condition) {
-                        hasBoomerang = true;
+                if (!array_contains(global.cardTypes[card_add2all, spawn])) {
+                    for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
+                        var currentCard = ds_list_find_value(global.cardList, i);
+                        var condition = (currentCard == 61 + (global.cardColor - 2));
                         
-                        break;
+                        if (array_contains(global.cardTypes[card_boomerang], spawn))
+                            condition = array_contains(global.cardTypes[card_boomerang], currentCard);
+                        
+                        if (condition) {
+                            hasBoomerang = true;
+                            
+                            break;
+                        }
                     }
                 }
                 

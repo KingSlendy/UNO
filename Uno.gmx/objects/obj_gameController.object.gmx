@@ -42,7 +42,8 @@ global.cardTypes = new_array(
     array_range(61, 4), //boomerang
     array_range(65, 5), //color
     array_range(70, 5), //add 4
-    75 //mystery
+    75, //mystery
+    string_split(string_join(array_range(1, 52), ",") + "65,70", ",") //traditional
 );
 
 global.currentTeam = team_noone;
@@ -359,14 +360,9 @@ if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playing
     draw_set_alpha(1);
     
     if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 300, 400) &amp;&amp; mouse_check_button_pressed(mb_left)) {
-        buffer_seek(global.buffer, buffer_seek_start, 0);
-        buffer_write(global.buffer, buffer_u8, 6);
-        buffer_write(global.buffer, buffer_u8, global.playerID);
-        network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
-        
-        with (obj_networkPlayer) instance_destroy();
-        
-        room_goto_previous();
+        with (obj_networkHandler) {
+            event_perform(ev_keypress, vk_f2);
+        }
     }
 }
 </string>
