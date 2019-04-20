@@ -8,6 +8,77 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="0" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>angle = 0;
+drawX = 0;
+moveState = 0;
+buttonState = 0;
+joinX = 300;
+joinY = 330;
+optionsX = 300;
+optionsY = 450;
+backX = 800 + 300;
+backY = 450;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>angle++;
+
+if (moveState == 1) {
+    drawX += 10;
+    
+    if (drawX &gt;= 800) {
+        drawX = 800;
+        moveState = 0;
+    }
+} else if (moveState == 2) {
+    drawX -= 10;
+    
+    if (drawX &lt;= 0) {
+        drawX = 0;
+        moveState = 0;
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="7" enumb="10">
       <action>
         <libid>1</libid>
@@ -25,10 +96,19 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
-buffer_write(global.buffer, buffer_u8, 7);
-buffer_write(global.buffer, buffer_u8, global.playerID);
-network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+            <string>if (moveState != 0) exit;
+
+switch (buttonState) {
+    case 0:
+        buffer_seek(global.buffer, buffer_seek_start, 0);
+        buffer_write(global.buffer, buffer_u8, 7);
+        buffer_write(global.buffer, buffer_u8, global.playerID);
+        network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+        break;
+        
+    case 1: if (global.playerID == 0) moveState = 1; break;
+    case 2: moveState = 2; break;
+}
 </string>
           </argument>
         </arguments>
@@ -51,17 +131,65 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_set_font(fnt_waiting);
+            <string>draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
+var tempJoinX = joinX - drawX;
+var tempOptionsX = optionsX - drawX;
+var tempBackX = backX - drawX;
+draw_set_font(fnt_waiting);
 draw_set_halign(fa_center);
-draw_set_colour(c_red);
-draw_rectangle(300, 400, 500, 500, false);
-draw_set_colour(c_black);
-draw_rectangle(300, 400, 500, 500, true);
 draw_set_valign(fa_middle);
-scr_drawTextOutline(400, 450, string_interp("{0}#game", cond_exp(global.playerID == 0, "Host", "Join")), c_white, c_black);
 
-if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 400, 500) &amp;&amp; mouse_check_button_pressed(mb_left))
+//Host/Join game
+scr_drawBox(tempJoinX, joinY, tempJoinX + 200, joinY + 100, c_red, 1, c_black);
+scr_drawTextOutline(tempJoinX + 100, joinY + 50, string_interp("{0}#game", cond_exp(global.playerID == 0, "Host", "Join")), c_white, c_black);
+
+if (scr_mouseInBox(tempJoinX, joinY, tempJoinX + 200, joinY + 100)) {
+    buttonState = 0;
     event_user(0);
+}
+
+//Game options    
+scr_drawBox(tempOptionsX, optionsY, tempOptionsX + 200, optionsY + 100, cond_exp(global.playerID == 0, c_red, c_gray), 1, c_black);
+scr_drawTextOutline(tempOptionsX + 100, optionsY + 50, "Game#options", c_white, c_black);
+
+if (scr_mouseInBox(tempOptionsX, optionsY, tempOptionsX + 200, optionsY + 100)) {
+    buttonState = 1;
+    event_user(0);
+}
+
+//Back   
+scr_drawBox(tempBackX, backY, tempBackX + 200, backY + 100, c_red, 1, c_black);
+scr_drawTextOutline(tempBackX + 100, backY + 50, "Back", c_white, c_black);
+
+if (scr_mouseInBox(tempBackX, backY, tempBackX + 200, backY + 100)) {
+    buttonState = 2;
+    event_user(0);
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="13">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (global.playerID != 0) exit;
+
+global.numberPlayers = get_integer("Enter players.", 2);
 </string>
           </argument>
         </arguments>

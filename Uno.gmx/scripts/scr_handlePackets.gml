@@ -6,8 +6,9 @@ switch (packetID) {
     case 0: global.playerID = buffer_read(buffer, buffer_u8); break;
         
     case 1:
-        var playerSize = buffer_read(buffer, buffer_u8);
+        playerSize = buffer_read(buffer, buffer_u8);
         var nowID = buffer_read(buffer, buffer_u8);
+        global.numberPlayers = buffer_read(buffer, buffer_u8);
         
         for (var i = 0; i < playerSize; i++) {
             var nowName = buffer_read(buffer, buffer_string);
@@ -23,6 +24,8 @@ switch (packetID) {
             remote.networkPlayerID = i;
             remote.networkPlayerName = nowName;
         }
+        
+        if (room == rm_title) room_goto_next();
         break;
         
     case 2:
@@ -101,8 +104,15 @@ switch (packetID) {
         global.sendAll = buffer_read(buffer, buffer_bool);
         global.usedBoomerang = buffer_read(buffer, buffer_bool);
         var playerAttacking = buffer_read(buffer, buffer_u8);
-        global.playerAttacking = cond_exp(!global.usedBoomerang && sentNewCards > 0, playerID, playerAttacking);
+        global.playerAttacking = playerAttacking;
         
+        if (!global.usedBoomerang) {
+            if (sentNewCards > 0)
+                global.playerAttacking = playerID;
+        
+            global.sentNewCards = 0;
+        }
+ 
         if (global.playerTurn == global.playerID || global.sendAll)
             global.sentNewCards += sentNewCards;
         
@@ -119,7 +129,7 @@ switch (packetID) {
         var message = buffer_read(buffer, buffer_string);
         
         if (response) {
-            obj_networkHandler.alarm[0] = 1;
+            alarm[0] = 1;
         } else {
             show_message(message);
         }

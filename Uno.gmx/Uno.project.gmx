@@ -8,6 +8,7 @@
   </NewExtensions>
   <sounds name="sound"/>
   <sprites name="sprites">
+    <sprite>sprites\spr_title</sprite>
     <sprite>sprites\spr_cards</sprite>
     <sprite>sprites\spr_cardsOutline</sprite>
     <sprite>sprites\spr_stackArrow</sprite>
@@ -18,26 +19,28 @@
     <sprite>sprites\spr_dirTurns</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
-  <backgrounds name="background">
-    <background>background\bgr_UNO</background>
-  </backgrounds>
+  <backgrounds name="background"/>
   <paths name="paths"/>
   <scripts name="scripts">
     <scripts name="Network">
       <script>scripts\scr_handlePackets.gml</script>
     </scripts>
     <scripts name="Game">
-      <script>scripts\scr_inRange.gml</script>
       <script>scripts\scr_cardMod.gml</script>
       <script>scripts\scr_cardDiv.gml</script>
       <script>scripts\scr_playAnimation.gml</script>
-      <script>scripts\scr_drawBox.gml</script>
       <script>scripts\scr_incrementTurn.gml</script>
     </scripts>
     <scripts name="Extra">
+      <script>scripts\scr_inRange.gml</script>
+      <script>scripts\scr_mouseInBox.gml</script>
       <script>scripts\scr_drawTextOutline.gml</script>
+      <script>scripts\scr_drawBox.gml</script>
     </scripts>
   </scripts>
+  <shaders name="shaders">
+    <shader type="GLSLES">shaders\shr_background.shader</shader>
+  </shaders>
   <fonts name="fonts">
     <font>fonts\fnt_text</font>
     <font>fonts\fnt_waiting</font>
@@ -49,6 +52,7 @@
     </objects>
     <objects name="Title">
       <object>objects\obj_title</object>
+      <object>objects\obj_background</object>
     </objects>
     <objects name="Game">
       <object>objects\obj_gameController</object>

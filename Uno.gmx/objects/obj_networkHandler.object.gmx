@@ -30,6 +30,7 @@ connected = network_connect(global.socket, get_string("Enter ip.", "127.0.0.1"),
 global.buffer = buffer_create(1024, buffer_fixed, 1);
 global.playerID = 0;
 global.playerName = get_string("Enter username.", "User");
+global.numberPlayers = 2;
 </string>
           </argument>
         </arguments>
@@ -56,9 +57,11 @@ global.playerName = get_string("Enter username.", "User");
 buffer_write(global.buffer, buffer_u8, 1);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_string, global.playerName);
-network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 
-if (room == rm_title) room_goto_next();
+if (global.playerID == 0)
+    buffer_write(global.buffer, buffer_u8, global.numberPlayers);
+    
+network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 </string>
           </argument>
         </arguments>
@@ -134,6 +137,31 @@ if (room == rm_title) room_goto_next();
             <kind>1</kind>
             <string>network_destroy(global.socket);
 buffer_delete(global.buffer);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="113">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>with (obj_networkPlayer) instance_destroy();
+
+room_goto(rm_title);
 </string>
           </argument>
         </arguments>

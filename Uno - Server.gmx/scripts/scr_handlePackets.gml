@@ -7,6 +7,10 @@ switch (packetID) {
     case 1:
         var nowID = buffer_read(buffer, buffer_u8);
         var nowName = buffer_read(buffer, buffer_string);
+        
+        if (nowID == 0)
+            global.numberPlayers = buffer_read(buffer, buffer_u8);
+        
         var playerSize = ds_list_size(global.players);
         var listName;
         var listPlaying;
@@ -34,6 +38,7 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_u8, 1);
                 buffer_write(global.buffer, buffer_u8, playerSize);
                 buffer_write(global.buffer, buffer_u8, nowID);
+                buffer_write(global.buffer, buffer_u8, global.numberPlayers);
                 
                 for (var j = 0; j < playerSize; j++) {
                     buffer_write(global.buffer, buffer_string, listName[j]);
@@ -142,6 +147,11 @@ switch (packetID) {
         } else {
             response = (global.playingGame[0] == true);
             message = "Can't join. Player hasn't hosted a game yet.";
+            
+            if (response && (array_count(global.playingGame, true) >= global.numberPlayers) || nowID > global.numberPlayers - 1) {
+                response = false;
+                message = "Can't join. Game is already full.";
+            }
         }
         
         buffer_seek(global.buffer, buffer_seek_start, 0);

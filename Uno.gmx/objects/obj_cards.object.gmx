@@ -175,7 +175,7 @@ outlineIndex %= sprite_get_number(spr_cardsOutline);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (status != stack_normal || !holding || global.gameFinished) exit;
+            <string>if (status != stack_normal || !holding || global.playingAnimation || global.gameFinished) exit;
 
 holding = false;
 depth = -1;
@@ -239,7 +239,7 @@ if (global.playerTurn == global.playerID) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished || global.playingAnimation) exit;
+            <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished) exit;
 
 if (status == stack_grab || global.gameInitial) {
     if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID)
@@ -278,7 +278,7 @@ depth = -2;
             <kind>1</kind>
             <string>image_index = irandom(image_number - 2) + 1;
 
-repeat (2) {
+repeat (1) {
     if (array_contains(global.cardTypes[card_special], image_index) &amp;&amp; irandom(1) == 0) {
         image_index = irandom(image_number - 2) + 1;
     }
@@ -444,10 +444,10 @@ global.changing = false;
           <argument>
             <kind>1</kind>
             <string>if (status == stack_grab) {
-    playerList = array_repeat(noone, global.numberPlayers);
-    execute = array_repeat(false, global.numberPlayers);
-    targets = array_repeat(false, global.numberPlayers);
-    newCards = array_repeat(1, global.numberPlayers);
+    playerList = array_repeat(noone, 4);
+    execute = array_repeat(false, 4);
+    targets = array_repeat(false, 4);
+    newCards = array_repeat(1, 4);
     backAngle = array_repeat(0, 4);
     
     for (var i = 0; i &lt; 4; i++)
