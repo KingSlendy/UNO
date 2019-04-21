@@ -184,7 +184,7 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
     if (place_meeting(x, y, obj_cards)) {
         with (instance_place(x, y, obj_cards)) {
             if (status == stack_answer) {
-                if (array_contains(global.cardTypes[card_black], other.image_index) || array_contains(global.cardTypes[global.cardColor], other.image_index) || in_range(other.image_index, scr_cardDiv(image_index), scr_cardDiv(image_index) + 3)) {
+                if (scr_canAnswer(other.image_index)) {
                     image_index = other.image_index;
                     
                     if (image_index == global.cardTypes[card_mystery]) {
@@ -241,9 +241,11 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
             <kind>1</kind>
             <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished) exit;
 
-if (status == stack_grab || global.gameInitial) {
-    if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID)
+if ((status == stack_grab || global.gameInitial) &amp;&amp; !global.drew &amp;&amp; !global.playingAnimation) {
+    if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID) {
         targets[global.playerID] = true;
+        global.drawing = true;
+    }
     
     exit;
 }
@@ -306,10 +308,15 @@ repeat (1) {
           <argument>
             <kind>1</kind>
             <string>ds_list_clear(global.cardList);
-                
+var cardDrawn = 0;
+        
 with (obj_cards) {
     if (status == stack_normal) {
         cardID = ds_list_size(global.cardList);
+        
+        if (cardID == 0)
+            cardDrawn = image_index;
+        
         visible = (cardID &lt; 9);
         ds_list_add(global.cardList, image_index);
     }
@@ -319,6 +326,9 @@ if (instance_number(obj_cards) - 2 &gt;= 9 &amp;&amp; global.cardView + 9 &gt; i
     global.cardView = instance_number(obj_cards) - 2 - 9;
 
 if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; global.playerID == 0)) {
+    if (!global.drawing) global.drew = false;
+    if (global.drawing &amp;&amp; scr_canAnswer(cardDrawn)) global.drew = true;
+    
     var cardStack = 0;
     var sendCards = 0;
     var sendAll = false;
@@ -365,7 +375,20 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
         }
     }
     
-    if (!global.gameInitial &amp;&amp; !global.sendAll) {
+    if (global.answering &amp;&amp; instance_number(obj_cards) - 2 == 1 &amp;&amp; !global.UNO) {
+        with (obj_cards) {
+            if (status == stack_grab) {
+                global.sentNewCards = 2;
+                targets[global.playerID] = true;
+                newCards[global.playerID] = global.sentNewCards;
+                global.sentNewCards = 0;
+                
+                exit;
+            }
+        }
+    }
+    
+    if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew) {
         var turn = 1;
     
         if (global.answering) {
@@ -420,7 +443,10 @@ global.sendAll = false;
 global.usedBoomerang = false;
 global.playerAttacking = -1;
 global.answering = false;
+global.drawing = false;
 global.changing = false;
+global.UNO = false;
+global.skipping = false;
 </string>
           </argument>
         </arguments>

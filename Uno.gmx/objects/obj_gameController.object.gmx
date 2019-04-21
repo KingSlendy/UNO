@@ -101,7 +101,15 @@ global.sendAll = false;
 global.playerAttacking = -1;
 global.usedBoomerang = false;
 global.answering = false;
+global.drawing = false;
+global.drew = false;
 global.changing = false;
+global.UNO = false;
+global.skipping = false;
+
+buttonX = 680;
+buttonUNOY = 350;
+buttonSkipY = 410;
 </string>
           </argument>
         </arguments>
@@ -237,7 +245,9 @@ global.changing = false;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
+            <string>if (global.skipping) exit;
+
+buffer_seek(global.buffer, buffer_seek_start, 0);
 buffer_write(global.buffer, buffer_u8, 3);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_bool, global.answering);
@@ -343,25 +353,51 @@ if (!global.gameStarted &amp;&amp; !global.gameInitial) {
     draw_set_alpha(1);
 }
 
-if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.playingAnimation &amp;&amp; global.gameFinished) {
-    draw_set_alpha(0.7);
-    draw_set_colour(c_black);
-    draw_rectangle(0, 0, room_width, room_height, false);
-    draw_set_alpha(1);
-    draw_set_font(fnt_waiting);
+if (!global.gameInitial &amp;&amp; global.gameStarted) {
     draw_set_halign(fa_center);
-    scr_drawTextOutline(400, 200, string_interp("{0} won the game!", global.playerWon), c_yellow, c_black);
-    draw_set_colour(c_red);
-    draw_rectangle(300, 300, 500, 400, false);
-    draw_set_colour(c_black);
-    draw_rectangle(300, 300, 500, 400, true);
     draw_set_valign(fa_middle);
-    scr_drawTextOutline(400, 350, "Play#again", c_white, c_black);
-    draw_set_alpha(1);
+    scr_drawBox(buttonX, buttonUNOY, buttonX + 100, buttonUNOY + 50, cond_exp((!global.UNO &amp;&amp; instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation), c_red, c_gray), 1, c_black);
+    scr_drawTextOutline(buttonX + 50, buttonUNOY + 25, "UNO", c_white, c_black);
+    scr_drawBox(buttonX, buttonSkipY, buttonX + 100, buttonSkipY + 50, cond_exp((global.drew &amp;&amp; !global.playingAnimation), c_red, c_gray), 1, c_black);
+    scr_drawTextOutline(buttonX + 50, buttonSkipY + 25, "Skip Turn", c_white, c_black);
     
-    if (in_range(mouse_x, 300, 500) &amp;&amp; in_range(mouse_y, 300, 400) &amp;&amp; mouse_check_button_pressed(mb_left)) {
-        with (obj_networkHandler) {
-            event_perform(ev_keypress, vk_f2);
+    if (scr_mouseInBox(buttonX, buttonUNOY, buttonX + 100, buttonUNOY + 50)) {
+        if (instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation) {
+            global.UNO = true;
+        }
+    }
+    
+    if (scr_mouseInBox(buttonX, buttonSkipY, buttonX + 100, buttonSkipY + 50)) {
+        if (global.drew &amp;&amp; !global.playingAnimation) {
+            with (obj_cards) {
+                if (status == stack_answer) {
+                    global.skipping = true;
+                    event_user(0);
+                }
+            }
+        }
+    }
+    
+    if (global.gameFinished &amp;&amp; !global.playingAnimation) {
+        draw_set_alpha(0.7);
+        draw_set_colour(c_black);
+        draw_rectangle(0, 0, room_width, room_height, false);
+        draw_set_alpha(1);
+        draw_set_font(fnt_waiting);
+        draw_set_halign(fa_center);
+        scr_drawTextOutline(400, 200, string_interp("{0} won the game!", global.playerWon), c_yellow, c_black);
+        draw_set_colour(c_red);
+        draw_rectangle(300, 300, 500, 400, false);
+        draw_set_colour(c_black);
+        draw_rectangle(300, 300, 500, 400, true);
+        draw_set_valign(fa_middle);
+        scr_drawTextOutline(400, 350, "Quiero#La", c_white, c_black);
+        draw_set_alpha(1);
+        
+        if (scr_mouseInBox(300, 300, 500, 400)) {
+            with (obj_networkHandler) {
+                event_perform(ev_keypress, vk_f2);
+            }
         }
     }
 }

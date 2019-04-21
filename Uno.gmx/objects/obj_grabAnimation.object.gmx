@@ -71,7 +71,7 @@ switch (action) {
             var hasAdd2 = false;
             
             if (global.playerTurn == global.playerID) {
-                if (!array_contains(global.cardTypes[card_add2all, spawn])) {
+                if (!array_contains(global.cardTypes[card_add2all], spawn)) {
                     for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
                         var currentCard = ds_list_find_value(global.cardList, i);
                         var condition = (currentCard == 61 + (global.cardColor - 2));

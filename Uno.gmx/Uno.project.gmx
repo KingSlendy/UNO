@@ -30,6 +30,7 @@
       <script>scripts\scr_cardDiv.gml</script>
       <script>scripts\scr_playAnimation.gml</script>
       <script>scripts\scr_incrementTurn.gml</script>
+      <script>scripts\scr_canAnswer.gml</script>
     </scripts>
     <scripts name="Extra">
       <script>scripts\scr_inRange.gml</script>

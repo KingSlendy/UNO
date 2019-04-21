@@ -33,6 +33,8 @@ joinX = 300;
 joinY = 330;
 optionsX = 300;
 optionsY = 450;
+optionsWindowX = 800 + 50;
+optionsWindowY = 25;
 backX = 800 + 300;
 backY = 450;
 </string>
@@ -131,10 +133,10 @@ switch (buttonState) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
+            <string>//Title
+draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
 var tempJoinX = joinX - drawX;
 var tempOptionsX = optionsX - drawX;
-var tempBackX = backX - drawX;
 draw_set_font(fnt_waiting);
 draw_set_halign(fa_center);
 draw_set_valign(fa_middle);
@@ -156,6 +158,14 @@ if (scr_mouseInBox(tempOptionsX, optionsY, tempOptionsX + 200, optionsY + 100)) 
     buttonState = 1;
     event_user(0);
 }
+
+//Game options
+var tempOptionsWindowX = optionsWindowX - drawX;
+var tempBackX = backX - drawX;
+scr_drawBox(tempOptionsWindowX, optionsWindowY, tempOptionsWindowX + 320, optionsWindowY + 385, c_white, 0.8, c_black);
+
+//Number of players
+//draw_text();
 
 //Back   
 scr_drawBox(tempBackX, backY, tempBackX + 200, backY + 100, c_red, 1, c_black);
