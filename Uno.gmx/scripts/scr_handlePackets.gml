@@ -135,6 +135,19 @@ switch (packetID) {
         } else {
             show_message(message);
         }
+        
+        obj_title.fetchingHostJoin = false;
+        break;
+        
+    case packets.sentUNO:
+        var playerID = buffer_read(buffer, buffer_u8);
+        
+        with (obj_networkPlayer) {
+            if (networkPlayerID == playerID) {
+                networkPlayerUNO = true;
+                alarm[0] = room_speed * 2;
+            }
+        }
         break;
           
     default: break;

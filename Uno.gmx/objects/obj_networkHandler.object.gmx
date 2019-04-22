@@ -34,15 +34,18 @@ global.playerName = get_string("Enter username.", "User");
 global.numberPlayers = 2;
 
 enum packets {
-    playerJoined, //Played joining the server
+    playerJoined, //Player joining the server
     playersInfo, //How many players there are in the sever and its names
     playerLeaving, //Player leaving the server
     playerCardsUpdate, //Updating what cards each player have
     playerTurnInfo, //The info of everything the player did on its turn
     playerWon, //Which player won
     playerStopPlaying, //Sets the player sent to not playing
-    canHostJoin //Determines if the player can host/join
+    canHostJoin, //Determines if the player can host/join
+    sentUNO //Player sent an UNO
 }
+
+obj_title.fetchingHostJoin = false;
 </string>
           </argument>
         </arguments>
@@ -66,7 +69,7 @@ enum packets {
           <argument>
             <kind>1</kind>
             <string>buffer_seek(global.buffer, buffer_seek_start, 0);
-buffer_write(global.buffer, buffer_u8, 1);
+buffer_write(global.buffer, buffer_u8, packets.playersInfo);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_string, global.playerName);
 
@@ -171,8 +174,10 @@ buffer_delete(global.buffer);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>buffer_seek(global.buffer, buffer_seek_start, 0);
-buffer_write(global.buffer, buffer_u8, 6);
+            <string>if (room == rm_title) exit;
+
+buffer_seek(global.buffer, buffer_seek_start, 0);
+buffer_write(global.buffer, buffer_u8, packets.playerStopPlaying);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 

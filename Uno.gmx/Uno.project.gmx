@@ -17,6 +17,7 @@
     <sprite>sprites\spr_cardIcon</sprite>
     <sprite>sprites\spr_cardColor</sprite>
     <sprite>sprites\spr_dirTurns</sprite>
+    <sprite>sprites\spr_UNO</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
   <backgrounds name="background"/>

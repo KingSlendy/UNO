@@ -19,7 +19,7 @@ switch (packetID) {
         
             if (socket != -1 && global.playingGame[i]) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
-                buffer_write(global.buffer, buffer_u8, 1);
+                buffer_write(global.buffer, buffer_u8, packets.playersInfo);
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_u8, global.numberPlayers);
                 
@@ -53,7 +53,7 @@ switch (packetID) {
         
             if (i != sentID && socket != -1) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
-                buffer_write(global.buffer, buffer_u8, 3);
+                buffer_write(global.buffer, buffer_u8, packets.playerCardsUpdate);
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_bool, answering);
                 buffer_write(global.buffer, buffer_u8, newCards);
@@ -88,7 +88,7 @@ switch (packetID) {
         
             if (i != sentID && socket != -1) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
-                buffer_write(global.buffer, buffer_u8, 4);
+                buffer_write(global.buffer, buffer_u8, packets.playerTurnInfo);
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_bool, gameStarted);
                 buffer_write(global.buffer, buffer_bool, answering);
@@ -115,7 +115,7 @@ switch (packetID) {
         
             if (i != sentID && socket != -1) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
-                buffer_write(global.buffer, buffer_u8, 5);
+                buffer_write(global.buffer, buffer_u8, packets.playerWon);
                 buffer_write(global.buffer, buffer_string, playerWon);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
@@ -146,10 +146,25 @@ switch (packetID) {
         }
         
         buffer_seek(global.buffer, buffer_seek_start, 0);
-        buffer_write(global.buffer, buffer_u8, 7);
+        buffer_write(global.buffer, buffer_u8, packets.canHostJoin);
         buffer_write(global.buffer, buffer_bool, response);
         buffer_write(global.buffer, buffer_string, message);
         network_send_packet(sentSocket, global.buffer, buffer_tell(global.buffer));
+        break;
+        
+    case packets.sentUNO:
+        var sentID = buffer_read(buffer, buffer_u8);
+        
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var socket = global.players[i, player_socket];
+            
+            if (socket != -1 && sentID != i) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, packets.sentUNO);
+                buffer_write(global.buffer, buffer_u8, sentID);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
         break;
         
     default: break;

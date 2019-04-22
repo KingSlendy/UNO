@@ -34,14 +34,15 @@ global.playingGame = array_repeat(false, global.maxPlayers);
 global.numberPlayers = 2;
 
 enum packets {
-    playerJoined, //Played joining the server
+    playerJoined, //Player joining the server
     playersInfo, //How many players there are in the sever and its names
     playerLeaving, //Player leaving the server
     playerCardsUpdate, //Updating what cards each player have
     playerTurnInfo, //The info of everything the player did on its turn
     playerWon, //Which player won
     playerStopPlaying, //Sets the player sent to not playing
-    canHostJoin //Determines if the player can host/join
+    canHostJoin, //Determines if the player can host/join
+    sentUNO //Player sent an UNO
 }
 </string>
           </argument>

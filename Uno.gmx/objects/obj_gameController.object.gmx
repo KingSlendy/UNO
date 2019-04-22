@@ -135,7 +135,7 @@ buttonSkipY = 410;
             <string>if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.changing &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
     global.playerWon = global.playerName;
     buffer_seek(global.buffer, buffer_seek_start, 0);
-    buffer_write(global.buffer, buffer_u8, 5);
+    buffer_write(global.buffer, buffer_u8, packets.playerWon);
     buffer_write(global.buffer, buffer_u8, global.playerID);
     buffer_write(global.buffer, buffer_string, global.playerWon);
     network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
@@ -248,16 +248,24 @@ buttonSkipY = 410;
             <string>if (global.skipping) exit;
 
 buffer_seek(global.buffer, buffer_seek_start, 0);
-buffer_write(global.buffer, buffer_u8, 3);
+buffer_write(global.buffer, buffer_u8, packets.playerCardsUpdate);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_bool, global.answering);
 
 var sendCards = 0;
+var pressedUNO = false;
+
+with (obj_cards) {
+    if (status == stack_answer) {
+        pressedUNO = !notPressedUNO;
+    }
+}
 
 with (obj_cards) {
     if (status == stack_grab) {
         sendCards = newCards[global.playerID];
-        newCards[global.playerID] = 1;
+        
+        if (pressedUNO) newCards[global.playerID] = 1;
     }
 }
 
@@ -317,17 +325,20 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_colour(c_black);
-scr_drawBox(0, 488, 800, 600, c_white, 0.6, c_black);
-scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 0.6, c_black);
+scr_drawBox(0, 488, 800, 600, c_white, 1, c_black);
+scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 1, c_black);
 draw_sprite(spr_playerIcon, 0, 16, 424);
 scr_drawTextOutline(38, 411, global.playerName, c_white, c_black);
 draw_sprite(spr_cardIcon, 0, 14, 460);
 scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
 
+if (global.UNO)
+    draw_sprite(spr_UNO, 0, 75, 446);
+
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
     var playerY = other.playerPositionY[networkPlayerID];
-    scr_drawBox(playerX, playerY, playerX + 200, playerY + 140, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, c_yellow, c_white), 0.6, c_black);
+    scr_drawBox(playerX, playerY, playerX + 200, playerY + 140, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, c_yellow, c_white), 1, c_black);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
     draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 52);
@@ -336,6 +347,9 @@ with (obj_networkPlayer) {
     
     for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
         draw_sprite_ext(spr_cards, cond_exp(networkPlayerTeam != team_noone &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+
+    if (networkPlayerUNO)
+        draw_sprite(spr_UNO, 0, playerX + 75, playerY + 38);
 }
 
 draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
@@ -364,6 +378,10 @@ if (!global.gameInitial &amp;&amp; global.gameStarted) {
     if (scr_mouseInBox(buttonX, buttonUNOY, buttonX + 100, buttonUNOY + 50)) {
         if (instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation) {
             global.UNO = true;
+            buffer_seek(global.buffer, buffer_seek_start, 0);
+            buffer_write(global.buffer, buffer_u8, packets.sentUNO);
+            buffer_write(global.buffer, buffer_u8, global.playerID);
+            network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         }
     }
     

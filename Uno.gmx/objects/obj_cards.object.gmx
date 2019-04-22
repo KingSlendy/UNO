@@ -33,6 +33,7 @@ holding = false;
 minusX = 0;
 minusY = 0;
 cardID = -1;
+notPressedUNO = false;
 </string>
           </argument>
         </arguments>
@@ -333,6 +334,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     var sendCards = 0;
     var sendAll = false;
     var usedBoomerang = false;
+    notPressedUNO = false;
     
     with (obj_cards) {
         if (status == stack_answer) {
@@ -378,17 +380,15 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     if (global.answering &amp;&amp; instance_number(obj_cards) - 2 == 1 &amp;&amp; !global.UNO) {
         with (obj_cards) {
             if (status == stack_grab) {
-                global.sentNewCards = 2;
                 targets[global.playerID] = true;
-                newCards[global.playerID] = global.sentNewCards;
-                global.sentNewCards = 0;
-                
-                exit;
+                newCards[global.playerID] = 2;
             }
         }
+        
+        notPressedUNO = true;
     }
     
-    if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew) {
+    if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew &amp;&amp; !notPressedUNO) {
         var turn = 1;
     
         if (global.answering) {
@@ -416,7 +416,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     }
 
     buffer_seek(global.buffer, buffer_seek_start, 0);
-    buffer_write(global.buffer, buffer_u8, 4);
+    buffer_write(global.buffer, buffer_u8, packets.playerTurnInfo);
     buffer_write(global.buffer, buffer_u8, global.playerID);
     buffer_write(global.buffer, buffer_bool, global.gameStarted);
     buffer_write(global.buffer, buffer_bool, global.answering);

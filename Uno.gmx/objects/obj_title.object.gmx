@@ -29,6 +29,7 @@
 drawX = 0;
 moveState = 0;
 buttonState = 0;
+fetchingHostJoin = false;
 joinX = 300;
 joinY = 330;
 optionsX = 300;
@@ -102,10 +103,13 @@ if (moveState == 1) {
 
 switch (buttonState) {
     case 0:
+        if (fetchingHostJoin) exit;
+        
         buffer_seek(global.buffer, buffer_seek_start, 0);
-        buffer_write(global.buffer, buffer_u8, 7);
+        buffer_write(global.buffer, buffer_u8, packets.canHostJoin);
         buffer_write(global.buffer, buffer_u8, global.playerID);
         network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+        fetchingHostJoin = true;
         break;
         
     case 1: if (global.playerID == 0) moveState = 1; break;
