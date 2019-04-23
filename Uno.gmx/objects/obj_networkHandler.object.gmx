@@ -26,26 +26,36 @@
           <argument>
             <kind>1</kind>
             <string>global.socket = network_create_socket(network_socket_tcp);
-connected = network_connect(global.socket, get_string("Enter ip.", "127.0.0.1"), 50000);
+ini_open("Data.ini");
+ini_write_string("Connection info", "Username", global.playerName);
+ini_write_string("Connection info", "IP", global.ip);
+ini_close();
+connected = network_connect(global.socket, global.ip, 50000);
 global.buffer = buffer_create(1024, buffer_fixed, 1);
-global.maxPlayers = 4;
-global.playerID = 0;
-global.playerName = get_string("Enter username.", "User");
-global.numberPlayers = 2;
-
-enum packets {
-    playerJoined, //Player joining the server
-    playersInfo, //How many players there are in the sever and its names
-    playerLeaving, //Player leaving the server
-    playerCardsUpdate, //Updating what cards each player have
-    playerTurnInfo, //The info of everything the player did on its turn
-    playerWon, //Which player won
-    playerStopPlaying, //Sets the player sent to not playing
-    canHostJoin, //Determines if the player can host/join
-    sentUNO //Player sent an UNO
-}
-
 obj_title.fetchingHostJoin = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>event_perform(ev_other, ev_game_end);
 </string>
           </argument>
         </arguments>
@@ -104,30 +114,6 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
     buffer_seek(buffer, buffer_seek_start, 0);
     scr_handlePackets(buffer);
 }
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="7" enumb="4">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>if (!instance_exists(obj_cursor))
-    instance_create(0, 0, obj_cursor);
 </string>
           </argument>
         </arguments>

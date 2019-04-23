@@ -28,11 +28,16 @@
             <string>angle = 0;
 drawX = 0;
 moveState = 0;
-buttonState = 0;
+buttonState = -1;
 fetchingHostJoin = false;
-joinX = 300;
+loginSelected = 0;
+loginX = 25;
+loginY = 285;
+connectX = 50;
+connectY = 450;
+joinX = 550;
 joinY = 330;
-optionsX = 300;
+optionsX = 550;
 optionsY = 450;
 optionsWindowX = 800 + 50;
 optionsWindowY = 25;
@@ -63,14 +68,14 @@ backY = 450;
             <string>angle++;
 
 if (moveState == 1) {
-    drawX += 10;
+    drawX += 20;
     
     if (drawX &gt;= 800) {
         drawX = 800;
         moveState = 0;
     }
 } else if (moveState == 2) {
-    drawX -= 10;
+    drawX -= 20;
     
     if (drawX &lt;= 0) {
         drawX = 0;
@@ -103,7 +108,7 @@ if (moveState == 1) {
 
 switch (buttonState) {
     case 0:
-        if (fetchingHostJoin) exit;
+        if (fetchingHostJoin || !instance_exists(obj_networkHandler)) exit;
         
         buffer_seek(global.buffer, buffer_seek_start, 0);
         buffer_write(global.buffer, buffer_u8, packets.canHostJoin);
@@ -114,6 +119,39 @@ switch (buttonState) {
         
     case 1: if (global.playerID == 0) moveState = 1; break;
     case 2: moveState = 2; break;
+    
+    case 3:
+        if (global.playerName == "") {
+            show_message("Please enter an username.");
+            
+            exit;
+        }
+        
+        if (global.ip == "") {
+            show_message("Pleaser enter an IP.");
+            
+            exit;
+        }
+    
+        if (instance_exists(obj_networkHandler)) {
+            with (obj_networkHandler) {
+                instance_destroy();
+            }
+        }
+        
+        global.playerID = -1;
+        instance_create(0, 0, obj_networkHandler);
+        break;
+        
+    case 4:
+        loginSelected = 1;
+        keyboard_string = global.playerName;
+        break;
+        
+    case 5:
+        loginSelected = 2;
+        keyboard_string = global.ip;
+        break;
 }
 </string>
           </argument>
@@ -139,71 +177,79 @@ switch (buttonState) {
             <kind>1</kind>
             <string>//Title
 draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
+
+//Temporary x coordinates
+var tempLoginX = loginX - drawX;
+var tempConnectX = connectX - drawX;
 var tempJoinX = joinX - drawX;
 var tempOptionsX = optionsX - drawX;
-draw_set_font(fnt_waiting);
+buttonState = -1;
+
+//Login window
+scr_drawBox(tempLoginX, loginY, tempLoginX + 250, loginY + 140, c_white, 1, c_black);
+draw_set_font(fnt_connection);
 draw_set_halign(fa_center);
-draw_set_valign(fa_middle);
+scr_drawTextOutline(tempLoginX + 250 / 2, loginY + 5, "Connection info", c_white, c_black);
+draw_set_font(fnt_login);
+draw_set_halign(fa_left);
+
+if (scr_drawButtonLogin(tempLoginX + 20, loginY + 60, 210, 25, cond_exp(loginSelected == 1, make_colour_rgb(230, 230, 230), c_white), global.playerName))
+    buttonState = 4;
+
+if (scr_drawButtonLogin(tempLoginX + 20, loginY + 100, 210, 25, cond_exp(loginSelected == 2, make_colour_rgb(230, 230, 230), c_white), global.ip))
+    buttonState = 5;
+    
+if (loginSelected == 1) {
+    if (string_length(global.playerName) &lt; 16 || string_length(keyboard_string) &lt; 16) {
+        global.playerName = keyboard_string;
+    } else {
+        keyboard_string = global.playerName;
+    }
+} else if (loginSelected == 2) {
+    if (string_length(global.ip) &lt; 16 || string_length(keyboard_string) &lt; 16) {
+        global.ip = keyboard_string;
+    } else {
+        keyboard_string = global.ip;
+    }
+}
+
+draw_set_font(fnt_waiting); 
+draw_set_colour(c_black);   
+
+//Connect/Reconnect server
+if (scr_drawButton(tempConnectX, connectY, 200, 100, c_red, cond_exp(instance_exists(obj_networkHandler), "Reconnect", "Connect") + "#to server"))
+    buttonState = 3;
 
 //Host/Join game
-scr_drawBox(tempJoinX, joinY, tempJoinX + 200, joinY + 100, c_red, 1, c_black);
-scr_drawTextOutline(tempJoinX + 100, joinY + 50, string_interp("{0}#game", cond_exp(global.playerID == 0, "Host", "Join")), c_white, c_black);
-
-if (scr_mouseInBox(tempJoinX, joinY, tempJoinX + 200, joinY + 100)) {
+if (scr_drawButton(tempJoinX, joinY, 200, 100, cond_exp((fetchingHostJoin || !instance_exists(obj_networkHandler)), c_gray, c_red), string_interp("{0}#game", cond_exp(global.playerID == 0, "Host", "Join"))))
     buttonState = 0;
-    event_user(0);
-}
 
 //Game options    
-scr_drawBox(tempOptionsX, optionsY, tempOptionsX + 200, optionsY + 100, cond_exp(global.playerID == 0, c_red, c_gray), 1, c_black);
-scr_drawTextOutline(tempOptionsX + 100, optionsY + 50, "Game#options", c_white, c_black);
-
-if (scr_mouseInBox(tempOptionsX, optionsY, tempOptionsX + 200, optionsY + 100)) {
+if (scr_drawButton(tempOptionsX, optionsY, 200, 100, cond_exp(global.playerID == 0, c_red, c_gray), "Game#options"))
     buttonState = 1;
-    event_user(0);
-}
 
-//Game options
+//Options menu//
+    
+//Options window
 var tempOptionsWindowX = optionsWindowX - drawX;
 var tempBackX = backX - drawX;
+draw_set_font(fnt_connection);
 scr_drawBox(tempOptionsWindowX, optionsWindowY, tempOptionsWindowX + 320, optionsWindowY + 385, c_white, 0.8, c_black);
 
 //Number of players
-//draw_text();
+scr_drawTextOutline(tempOptionsWindowX + 20, optionsWindowY + 10, "Number of players", c_white, c_black);
 
-//Back   
-scr_drawBox(tempBackX, backY, tempBackX + 200, backY + 100, c_red, 1, c_black);
-scr_drawTextOutline(tempBackX + 100, backY + 50, "Back", c_white, c_black);
-
-if (scr_mouseInBox(tempBackX, backY, tempBackX + 200, backY + 100)) {
-    buttonState = 2;
-    event_user(0);
+for (var i = 0; i &lt; global.maxPlayers - 1; i++) {
+    if (scr_drawCell(tempOptionsWindowX + 20 + (300 / global.maxPlayers * i), optionsWindowY + 50, global.numberPlayers - 2 == i, i + 2)) {
+        global.numberPlayers = i + 2;
+    }
 }
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="9" enumb="13">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>if (global.playerID != 0) exit;
 
-global.numberPlayers = get_integer("Enter players.", 2);
+//Back
+if (scr_drawButton(tempBackX, backY, 200, 100, c_red, "Back"))
+    buttonState = 2;
+    
+if (buttonState != -1) event_user(0);
 </string>
           </argument>
         </arguments>

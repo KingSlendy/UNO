@@ -76,6 +76,11 @@ switch (global.numberPlayers) {
         tempPosX = new_array(90, 550, 300, 50);
         tempPosY = new_array(440, 200, 100, 200);
         break;
+        
+    case 5:
+        tempPosX = new_array(90, 550, 450, 150, 50);
+        tempPosY = new_array(440, 200, 50, 50, 200);
+        break;
 }
 
 var count = 0;
@@ -108,8 +113,8 @@ global.UNO = false;
 global.skipping = false;
 
 buttonX = 680;
-buttonUNOY = 350;
-buttonSkipY = 410;
+buttonUNOY = 360;
+buttonSkipY = 420;
 </string>
           </argument>
         </arguments>
@@ -325,6 +330,7 @@ network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_colour(c_black);
+//Your information
 scr_drawBox(0, 488, 800, 600, c_white, 1, c_black);
 scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 1, c_black);
 draw_sprite(spr_playerIcon, 0, 16, 424);
@@ -335,6 +341,7 @@ scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_b
 if (global.UNO)
     draw_sprite(spr_UNO, 0, 75, 446);
 
+//Other player's information
 with (obj_networkPlayer) {
     var playerX = other.playerPositionX[networkPlayerID];
     var playerY = other.playerPositionY[networkPlayerID];
@@ -352,9 +359,11 @@ with (obj_networkPlayer) {
         draw_sprite(spr_UNO, 0, playerX + 75, playerY + 38);
 }
 
+//Middle information
 draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
 draw_sprite(spr_cardColor, global.cardColor - 2, 400, 352);
 
+//Waiting for players to join the game
 if (!global.gameStarted &amp;&amp; !global.gameInitial) {
     draw_set_alpha(0.7);
     draw_set_colour(c_black);
@@ -367,15 +376,10 @@ if (!global.gameStarted &amp;&amp; !global.gameInitial) {
     draw_set_alpha(1);
 }
 
+//When playing
 if (!global.gameInitial &amp;&amp; global.gameStarted) {
-    draw_set_halign(fa_center);
-    draw_set_valign(fa_middle);
-    scr_drawBox(buttonX, buttonUNOY, buttonX + 100, buttonUNOY + 50, cond_exp((!global.UNO &amp;&amp; instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation), c_red, c_gray), 1, c_black);
-    scr_drawTextOutline(buttonX + 50, buttonUNOY + 25, "UNO", c_white, c_black);
-    scr_drawBox(buttonX, buttonSkipY, buttonX + 100, buttonSkipY + 50, cond_exp((global.drew &amp;&amp; !global.playingAnimation), c_red, c_gray), 1, c_black);
-    scr_drawTextOutline(buttonX + 50, buttonSkipY + 25, "Skip Turn", c_white, c_black);
-    
-    if (scr_mouseInBox(buttonX, buttonUNOY, buttonX + 100, buttonUNOY + 50)) {
+    //UNO button
+    if (scr_drawButton(buttonX, buttonUNOY, 100, 50, cond_exp((!global.UNO &amp;&amp; instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation), c_red, c_gray), "UNO")) {
         if (instance_number(obj_cards) - 2 == 2 &amp;&amp; global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation) {
             global.UNO = true;
             buffer_seek(global.buffer, buffer_seek_start, 0);
@@ -385,7 +389,8 @@ if (!global.gameInitial &amp;&amp; global.gameStarted) {
         }
     }
     
-    if (scr_mouseInBox(buttonX, buttonSkipY, buttonX + 100, buttonSkipY + 50)) {
+    //Skip Turn button
+    if (scr_drawButton(buttonX, buttonSkipY, 100, 50, cond_exp((global.drew &amp;&amp; !global.playingAnimation), c_red, c_gray), "Skip Turn")) {
         if (global.drew &amp;&amp; !global.playingAnimation) {
             with (obj_cards) {
                 if (status == stack_answer) {
@@ -396,6 +401,7 @@ if (!global.gameInitial &amp;&amp; global.gameStarted) {
         }
     }
     
+    //A player has won
     if (global.gameFinished &amp;&amp; !global.playingAnimation) {
         draw_set_alpha(0.7);
         draw_set_colour(c_black);
@@ -404,15 +410,8 @@ if (!global.gameInitial &amp;&amp; global.gameStarted) {
         draw_set_font(fnt_waiting);
         draw_set_halign(fa_center);
         scr_drawTextOutline(400, 200, string_interp("{0} won the game!", global.playerWon), c_yellow, c_black);
-        draw_set_colour(c_red);
-        draw_rectangle(300, 300, 500, 400, false);
-        draw_set_colour(c_black);
-        draw_rectangle(300, 300, 500, 400, true);
-        draw_set_valign(fa_middle);
-        scr_drawTextOutline(400, 350, "Quiero#La", c_white, c_black);
-        draw_set_alpha(1);
         
-        if (scr_mouseInBox(300, 300, 500, 400)) {
+        if (scr_drawButton(300, 300, 200, 100, c_red, "Quiero#La")) {
             with (obj_networkHandler) {
                 event_perform(ev_keypress, vk_f2);
             }

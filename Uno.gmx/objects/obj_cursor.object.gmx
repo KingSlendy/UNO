@@ -95,11 +95,10 @@ event_user(0);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (place_meeting(x, y, obj_cards)) {
+            <string>if (mouse_check_button(mb_left)) {
+    image_index = 2;
+} else if (place_meeting(x, y, obj_cards)) {
     image_index = 1;
-    
-    if (mouse_check_button(mb_left))
-        image_index = 2;
 } else if (place_meeting(x, y, obj_stackArrow)) {
     var arrow = instance_place(x, y, obj_stackArrow);
     

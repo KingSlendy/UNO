@@ -25,10 +25,10 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>global.maxPlayers = 4;
+            <string>global.maxPlayers = 5;
 server = network_create_server(network_socket_tcp, 50000, global.maxPlayers);
 global.buffer = buffer_create(1024, buffer_fixed, 1);
-global.players = to_array_2d(array_repeat(-1, 8), global.maxPlayers, 2);
+global.players = to_array_2d(array_repeat(-1, global.maxPlayers * 2), global.maxPlayers, 2);
 global.availableID = array_repeat(true, global.maxPlayers);
 global.playingGame = array_repeat(false, global.maxPlayers);
 global.numberPlayers = 2;
@@ -174,11 +174,11 @@ for (var i = 0; i &lt; global.maxPlayers; i++) {
     var player = global.players[i, player_object];
     
     if (player != -1) {
-        draw_text(0, 60 * (i + 1), string_interp("Player {0}", player.playerID + 1));
-        draw_text(0, 60 * (i + 1) + 15, string_interp("Player name: {0}", player.playerName));
-        draw_text(0, 60 * (i + 1) + 30, string_interp("Playing playing: {0}", cond_exp(global.playingGame[i], "Yes", "No")));
+        draw_text(0, 20 + (60 * i), string_interp("Player {0}", player.playerID + 1));
+        draw_text(0, 20 + (60 * i) + 15, string_interp("Player name: {0}", player.playerName));
+        draw_text(0, 20 + (60 * i) + 30, string_interp("Playing playing: {0}", cond_exp(global.playingGame[i], "Yes", "No")));
     } else {
-        draw_text(0, 60 * (i + 1), "No Player");
+        draw_text(0, 20 + (60 * i), "No Player");
     }
 }
 

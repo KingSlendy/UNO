@@ -125,6 +125,17 @@ switch (packetID) {
     case packets.playerStopPlaying:
         var sentID = buffer_read(buffer, buffer_u8);
         global.playingGame[sentID] = false;
+        
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var socket = global.players[i, player_socket];
+        
+            if (i != sentID && socket != -1) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, packets.playerLeaving);
+                buffer_write(global.buffer, buffer_u8, sentID);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
         break;
         
     case packets.canHostJoin:

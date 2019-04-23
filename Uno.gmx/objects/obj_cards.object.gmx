@@ -470,10 +470,10 @@ global.skipping = false;
           <argument>
             <kind>1</kind>
             <string>if (status == stack_grab) {
-    playerList = array_repeat(noone, 4);
-    execute = array_repeat(false, 4);
-    targets = array_repeat(false, 4);
-    newCards = array_repeat(1, 4);
+    playerList = array_repeat(noone, global.maxPlayers);
+    execute = array_repeat(false, global.maxPlayers);
+    targets = array_repeat(false, global.maxPlayers);
+    newCards = array_repeat(1, global.maxPlayers);
     backAngle = array_repeat(0, 4);
     
     for (var i = 0; i &lt; 4; i++)

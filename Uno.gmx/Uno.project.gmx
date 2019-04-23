@@ -38,6 +38,9 @@
       <script>scripts\scr_mouseInBox.gml</script>
       <script>scripts\scr_drawTextOutline.gml</script>
       <script>scripts\scr_drawBox.gml</script>
+      <script>scripts\scr_drawButton.gml</script>
+      <script>scripts\scr_drawButtonLogin.gml</script>
+      <script>scripts\scr_drawCell.gml</script>
     </scripts>
   </scripts>
   <shaders name="shaders">
@@ -46,9 +49,12 @@
   <fonts name="fonts">
     <font>fonts\fnt_text</font>
     <font>fonts\fnt_waiting</font>
+    <font>fonts\fnt_login</font>
+    <font>fonts\fnt_connection</font>
   </fonts>
   <objects name="objects">
     <objects name="Network">
+      <object>objects\obj_gameInit</object>
       <object>objects\obj_networkHandler</object>
       <object>objects\obj_networkPlayer</object>
     </objects>
@@ -70,7 +76,7 @@
     <room>rooms\rm_title</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="24">
+  <constants number="25">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -86,6 +92,7 @@
     <constant name="card_color">12</constant>
     <constant name="card_add4">13</constant>
     <constant name="card_mystery">14</constant>
+    <constant name="cards_traditional">15</constant>
     <constant name="stack_answer">0</constant>
     <constant name="stack_grab">1</constant>
     <constant name="stack_normal">2</constant>
