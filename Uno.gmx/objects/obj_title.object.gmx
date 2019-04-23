@@ -199,6 +199,8 @@ if (scr_drawButtonLogin(tempLoginX + 20, loginY + 60, 210, 25, cond_exp(loginSel
 if (scr_drawButtonLogin(tempLoginX + 20, loginY + 100, 210, 25, cond_exp(loginSelected == 2, make_colour_rgb(230, 230, 230), c_white), global.ip))
     buttonState = 5;
     
+if (buttonState == -1 &amp;&amp; mouse_check_button_pressed(mb_left)) loginSelected = 0;
+    
 if (loginSelected == 1) {
     if (string_length(global.playerName) &lt; 16 || string_length(keyboard_string) &lt; 16) {
         global.playerName = keyboard_string;
@@ -229,19 +231,53 @@ if (scr_drawButton(tempOptionsX, optionsY, 200, 100, cond_exp(global.playerID ==
     buttonState = 1;
 
 //Options menu//
-    
-//Options window
 var tempOptionsWindowX = optionsWindowX - drawX;
 var tempBackX = backX - drawX;
-draw_set_font(fnt_connection);
+//Options window
 scr_drawBox(tempOptionsWindowX, optionsWindowY, tempOptionsWindowX + 320, optionsWindowY + 385, c_white, 0.8, c_black);
 
-//Number of players
-scr_drawTextOutline(tempOptionsWindowX + 20, optionsWindowY + 10, "Number of players", c_white, c_black);
+for (var i = 0; i &lt; 3; i++) {
+    draw_set_font(fnt_connection);
+    var drawY = optionsWindowY + (80 * i) + 10;
 
-for (var i = 0; i &lt; global.maxPlayers - 1; i++) {
-    if (scr_drawCell(tempOptionsWindowX + 20 + (300 / global.maxPlayers * i), optionsWindowY + 50, global.numberPlayers - 2 == i, i + 2)) {
-        global.numberPlayers = i + 2;
+    switch (i) {
+        case 0: //Number of players
+            scr_drawTextOutline(tempOptionsWindowX + 20, drawY, "Number of players", c_white, c_black);
+            
+            for (var j = 0; j &lt; global.maxPlayers - 1; j++) {
+                if (scr_drawCell(tempOptionsWindowX + 20 + (300 / global.maxPlayers * j), drawY + 45, global.numberPlayers - 2 == j, j + 2)) {
+                    global.numberPlayers = j + 2;
+                }
+            }
+            break;
+        
+        case 1: //Specials frequency
+            scr_drawTextOutline(tempOptionsWindowX + 20, drawY, "Specials frequency", c_white, c_black);
+            var frequency = new_array("A", "H", "M", "L", "W");
+            
+            for (var j = 0; j &lt; array_length_1d(frequency); j++) {
+                if (scr_drawCell(tempOptionsWindowX + 20 + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
+                    global.specialsFrequency = j;
+                }
+            }
+            break;
+            
+        case 2: //Only ? cards
+            if (scr_drawCell(tempOptionsWindowX + 20, drawY, global.onlyQuestion, "Only ? cards")) {
+                global.onlyQuestion = !global.onlyQuestion;
+                global.specialsFrequency = cond_exp(global.onlyQuestion, 0, global.specialsFrequency);
+            }
+            break;
+            
+        case 3: //Game modes
+            scr_drawTextOutline(tempOptionsWindowX + 20, drawY, "Game modes", c_white, c_black);
+            
+            /*for (var j = 0; j &lt; array_length_1d(frequency); j++) {
+                if (scr_drawCell(tempOptionsWindowX + 20 + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
+                    global.specialsFrequency = j;
+                }
+            }*/
+            break;
     }
 }
 

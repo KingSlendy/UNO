@@ -33,7 +33,7 @@ holding = false;
 minusX = 0;
 minusY = 0;
 cardID = -1;
-notPressedUNO = false;
+penaltyCards = false;
 </string>
           </argument>
         </arguments>
@@ -242,7 +242,7 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
             <kind>1</kind>
             <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished) exit;
 
-if ((status == stack_grab || global.gameInitial) &amp;&amp; !global.drew &amp;&amp; !global.playingAnimation) {
+if ((status == stack_grab || global.gameInitial) &amp;&amp; !global.drew &amp;&amp; global.sentNewCards == 0 &amp;&amp; !global.playingAnimation) {
     if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID) {
         targets[global.playerID] = true;
         global.drawing = true;
@@ -279,11 +279,27 @@ depth = -2;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>image_index = irandom(image_number - 2) + 1;
+            <string>if (global.onlyQuestion) {
+    image_index = 75;
+    
+    exit;
+}
 
-repeat (1) {
-    if (array_contains(global.cardTypes[card_special], image_index) &amp;&amp; irandom(1) == 0) {
-        image_index = irandom(image_number - 2) + 1;
+scr_shuffleCard();
+
+if (in_range(global.specialsFrecuency, 1, 3)) {
+    repeat (global.specialsFrequency - 1) {
+        if (array_contains(global.cardTypes[card_special], image_index) &amp;&amp; irandom(1) == 0) {
+            scr_shuffleCard();
+        }
+    }
+} else if (global.specialsFrecuency == 0) {
+    while (!array_contains(global.cardTypes[card_special], image_index)) {
+        scr_shuffleCard();
+    }
+} else {
+    while (array_contains(global.cardTypes[card_special], image_index)) {
+        scr_shuffleCard();
     }
 }
 </string>
@@ -334,7 +350,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     var sendCards = 0;
     var sendAll = false;
     var usedBoomerang = false;
-    notPressedUNO = false;
+    penaltyCards = false;
     
     with (obj_cards) {
         if (status == stack_answer) {
@@ -348,10 +364,10 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
                 targets[global.playerID] = true;
                 newCards[global.playerID] = global.sentNewCards;
                 global.sentNewCards = 0;
-                
-                exit;
             }
         }
+        
+        penaltyCards = true;
     }
     
     if (global.answering &amp;&amp; !global.changing &amp;&amp; array_contains(global.cardTypes[card_change], cardStack)) {
@@ -372,8 +388,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
             }
             
             global.changing = true;
-            
-            exit;
+            penaltyCards = true;
         }
     }
     
@@ -385,10 +400,10 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
             }
         }
         
-        notPressedUNO = true;
+        penaltyCards = true;
     }
     
-    if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew &amp;&amp; !notPressedUNO) {
+    if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew) {
         var turn = 1;
     
         if (global.answering) {
@@ -444,7 +459,9 @@ global.usedBoomerang = false;
 global.playerAttacking = -1;
 global.answering = false;
 global.drawing = false;
-global.changing = false;
+
+if (!penaltyCards) global.changing = false;
+
 global.UNO = false;
 global.skipping = false;
 </string>

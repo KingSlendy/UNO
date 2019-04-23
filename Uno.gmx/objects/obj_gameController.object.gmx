@@ -43,10 +43,9 @@ global.cardTypes = new_array(
     array_range(65, 5), //color
     array_range(70, 5), //add 4
     75, //mystery
-    string_split(string_join(array_range(1, 52), ",") + "65,70", ",") //traditional
+    string_split(string_join(array_range(1, 52), ",") + ",65,70", ",") //traditional
 );
 
-global.currentTeam = team_noone;
 global.cardList = ds_list_create();
 global.gameStarted = false;
 global.gameInitial = false;
@@ -258,11 +257,11 @@ buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_bool, global.answering);
 
 var sendCards = 0;
-var pressedUNO = false;
+var penalty = false;
 
 with (obj_cards) {
     if (status == stack_answer) {
-        pressedUNO = !notPressedUNO;
+        penalty = penaltyCards;
     }
 }
 
@@ -270,7 +269,7 @@ with (obj_cards) {
     if (status == stack_grab) {
         sendCards = newCards[global.playerID];
         
-        if (pressedUNO) newCards[global.playerID] = 1;
+        if (!penalty) newCards[global.playerID] = 1;
     }
 }
 

@@ -83,8 +83,12 @@ buffer_write(global.buffer, buffer_u8, packets.playersInfo);
 buffer_write(global.buffer, buffer_u8, global.playerID);
 buffer_write(global.buffer, buffer_string, global.playerName);
 
-if (global.playerID == 0)
+if (global.playerID == 0) {
     buffer_write(global.buffer, buffer_u8, global.numberPlayers);
+    buffer_write(global.buffer, buffer_u8, global.specialsFrequency);
+    buffer_write(global.buffer, buffer_u8, global.gameMode);
+    buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
+}
     
 network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 </string>

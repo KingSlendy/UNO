@@ -27,11 +27,17 @@
             <kind>1</kind>
             <string>global.maxPlayers = 5;
 global.playerID = -1;
+
 ini_open("Data.ini");
 global.playerName = ini_read_string("Connection info", "Username", "User");
 global.ip = ini_read_string("Connection info", "IP", "127.0.0.1");
 ini_close();
+
 global.numberPlayers = 2;
+global.gameMode = mode_normal;
+global.specialsFrequency = 1;
+global.onlyQuestion = false;
+global.currentTeam = team_noone;
 
 enum packets {
     playerJoined, //Player joining the server

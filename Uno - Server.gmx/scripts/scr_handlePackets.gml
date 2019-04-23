@@ -8,8 +8,12 @@ switch (packetID) {
         var sentID = buffer_read(buffer, buffer_u8);
         var sentName = buffer_read(buffer, buffer_string);
         
-        if (sentID == 0)
+        if (sentID == 0) {
             global.numberPlayers = buffer_read(buffer, buffer_u8);
+            global.specialsFrecuency = buffer_read(buffer, buffer_u8);
+            global.gameMode = buffer_read(buffer, buffer_u8);
+            global.onlyQuestion = buffer_read(buffer, buffer_bool);
+        }
         
         global.players[sentID, player_object].playerName = sentName;
         global.playingGame[sentID] = true;
@@ -22,6 +26,9 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_u8, packets.playersInfo);
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_u8, global.numberPlayers);
+                buffer_write(global.buffer, buffer_u8, global.specialsFrecuency);
+                buffer_write(global.buffer, buffer_u8, global.gameMode);
+                buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
                 
                 for (var j = 0; j < global.maxPlayers; j++) {
                     var player = global.players[j, player_object];

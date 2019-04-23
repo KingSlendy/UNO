@@ -8,6 +8,9 @@ switch (packetID) {
     case packets.playersInfo:
         var nowID = buffer_read(buffer, buffer_u8);
         global.numberPlayers = buffer_read(buffer, buffer_u8);
+        global.specialsFrecuency = buffer_read(buffer, buffer_u8);
+        global.gameMode = buffer_read(buffer, buffer_u8);
+        global.onlyQuestion = buffer_read(buffer, buffer_bool);
         
         for (var i = 0; i < global.maxPlayers; i++) {
             var checkPlayer = buffer_read(buffer, buffer_bool);

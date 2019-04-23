@@ -32,6 +32,9 @@ global.players = to_array_2d(array_repeat(-1, global.maxPlayers * 2), global.max
 global.availableID = array_repeat(true, global.maxPlayers);
 global.playingGame = array_repeat(false, global.maxPlayers);
 global.numberPlayers = 2;
+global.specialsFrecuency = 1;
+global.gameMode = 0;
+global.onlyQuestion = false;
 
 enum packets {
     playerJoined, //Player joining the server
