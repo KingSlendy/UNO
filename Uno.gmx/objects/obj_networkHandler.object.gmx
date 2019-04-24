@@ -86,11 +86,20 @@ buffer_write(global.buffer, buffer_string, global.playerName);
 if (global.playerID == 0) {
     buffer_write(global.buffer, buffer_u8, global.numberPlayers);
     buffer_write(global.buffer, buffer_u8, global.specialsFrequency);
-    buffer_write(global.buffer, buffer_u8, global.gameMode);
     buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
+    buffer_write(global.buffer, buffer_u8, global.gameMode);
+    buffer_write(global.buffer, buffer_bool, global.teamsMode);
 }
     
 network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+
+ini_open("Data.ini");
+ini_write_real("Game info", "NumberPlayers", global.numberPlayers);
+ini_write_real("Game info", "SpecialsFrecuency", global.specialsFrequency);
+ini_write_real("Game info", "OnlyQuestion", global.onlyQuestion);
+ini_write_real("Game info", "GameMode", global.gameMode);
+ini_write_real("Game info", "TeamsMode", global.teamsMode);
+ini_close();
 </string>
           </argument>
         </arguments>

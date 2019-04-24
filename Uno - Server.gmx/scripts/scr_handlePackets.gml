@@ -11,11 +11,20 @@ switch (packetID) {
         if (sentID == 0) {
             global.numberPlayers = buffer_read(buffer, buffer_u8);
             global.specialsFrecuency = buffer_read(buffer, buffer_u8);
-            global.gameMode = buffer_read(buffer, buffer_u8);
             global.onlyQuestion = buffer_read(buffer, buffer_bool);
+            global.gameMode = buffer_read(buffer, buffer_u8);
+            global.teamsMode = buffer_read(buffer, buffer_bool);
+            
+            if (irandom(1) == 0) {
+                global.teams = new_array(team_red, team_blue, team_red, team_blue);;
+            } else {
+                global.teams = new_array(team_blue, team_red, team_blue, team_red);
+            }
         }
         
-        global.players[sentID, player_object].playerName = sentName;
+        var player = global.players[sentID, player_object];
+        player.playerName = sentName;
+        player.playerTeam = global.teams[sentID];
         global.playingGame[sentID] = true;
         
         for (var i = 0; i < global.maxPlayers; i++) {
@@ -27,15 +36,17 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_u8, global.numberPlayers);
                 buffer_write(global.buffer, buffer_u8, global.specialsFrecuency);
-                buffer_write(global.buffer, buffer_u8, global.gameMode);
                 buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
+                buffer_write(global.buffer, buffer_u8, global.gameMode);
+                buffer_write(global.buffer, buffer_bool, global.teamsMode);
                 
                 for (var j = 0; j < global.maxPlayers; j++) {
-                    var player = global.players[j, player_object];
+                    player = global.players[j, player_object];
                     buffer_write(global.buffer, buffer_bool, player != -1);
                     
                     if (player != -1) {
                         buffer_write(global.buffer, buffer_string, player.playerName);
+                        buffer_write(global.buffer, buffer_u8, player.playerTeam);
                         buffer_write(global.buffer, buffer_bool, global.playingGame[j]);
                     }
                 }
@@ -89,6 +100,7 @@ switch (packetID) {
         var sendAll = buffer_read(buffer, buffer_bool);
         var usedBoomerang = buffer_read(buffer, buffer_bool);
         var playerAttacking = buffer_read(buffer, buffer_u8);
+        var playerTeam = buffer_read(buffer, buffer_u8);
         
         for (var i = 0; i < global.maxPlayers; i++) {
             var socket = global.players[i, player_socket];
@@ -107,6 +119,7 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_bool, sendAll);
                 buffer_write(global.buffer, buffer_bool, usedBoomerang);
                 buffer_write(global.buffer, buffer_u8, playerAttacking);
+                buffer_write(global.buffer, buffer_u8, playerTeam);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }

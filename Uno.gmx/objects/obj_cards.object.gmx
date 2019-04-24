@@ -289,7 +289,7 @@ scr_shuffleCard();
 
 if (in_range(global.specialsFrecuency, 1, 3)) {
     repeat (global.specialsFrequency - 1) {
-        if (array_contains(global.cardTypes[card_special], image_index) &amp;&amp; irandom(1) == 0) {
+        if (array_contains(global.cardTypes[card_special], image_index)) {
             scr_shuffleCard();
         }
     }
@@ -443,6 +443,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     buffer_write(global.buffer, buffer_bool, sendAll);
     buffer_write(global.buffer, buffer_bool, usedBoomerang);
     buffer_write(global.buffer, buffer_u8, global.playerAttacking);
+    buffer_write(global.buffer, buffer_u8, global.currentTeam);
     network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
 }
 

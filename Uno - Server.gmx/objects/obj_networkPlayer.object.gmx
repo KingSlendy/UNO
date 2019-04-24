@@ -27,6 +27,7 @@
             <kind>1</kind>
             <string>playerID = 0;
 playerName = "User";
+playerTeam = team_red;
 </string>
           </argument>
         </arguments>

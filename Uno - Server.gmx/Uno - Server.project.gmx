@@ -20,9 +20,11 @@
   <rooms name="rooms">
     <room>rooms\rm_server</room>
   </rooms>
-  <constants number="2">
+  <constants number="4">
     <constant name="player_object">0</constant>
     <constant name="player_socket">1</constant>
+    <constant name="team_red">0</constant>
+    <constant name="team_blue">1</constant>
   </constants>
   <help>
     <rtf>help.rtf</rtf>

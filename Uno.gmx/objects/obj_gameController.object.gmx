@@ -137,7 +137,7 @@ buttonSkipY = 420;
           <argument>
             <kind>1</kind>
             <string>if (!global.gameInitial &amp;&amp; global.gameStarted &amp;&amp; !global.changing &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished &amp;&amp; ds_list_size(global.cardList) == 0) {
-    global.playerWon = global.playerName;
+    global.playerWon = cond_exp(global.teamsMode, cond_exp(global.currentTeam == 0, "Red", "Blue") + " Team", global.playerName);
     buffer_seek(global.buffer, buffer_seek_start, 0);
     buffer_write(global.buffer, buffer_u8, packets.playerWon);
     buffer_write(global.buffer, buffer_u8, global.playerID);
@@ -334,11 +334,16 @@ scr_drawBox(0, 488, 800, 600, c_white, 1, c_black);
 scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 1, c_black);
 draw_sprite(spr_playerIcon, 0, 16, 424);
 scr_drawTextOutline(38, 411, global.playerName, c_white, c_black);
-draw_sprite(spr_cardIcon, 0, 14, 460);
+
+if (!global.teamsMode) {
+    draw_sprite(spr_cardIcon, 0, 14, 460);
+} else {
+    draw_sprite(spr_cardIcon, global.currentTeam + 1, 14, 460);
+}
+
 scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
 
-if (global.UNO)
-    draw_sprite(spr_UNO, 0, 75, 446);
+if (global.UNO) draw_sprite(spr_UNO, 0, 75, 446);
 
 //Other player's information
 with (obj_networkPlayer) {
@@ -347,12 +352,18 @@ with (obj_networkPlayer) {
     scr_drawBox(playerX, playerY, playerX + 200, playerY + 140, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, c_yellow, c_white), 1, c_black);
     draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
     scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
-    draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 52);
+    
+    if (!global.teamsMode) {
+        draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 52);
+    } else {
+        draw_sprite(spr_cardIcon, networkPlayerTeam + 1, playerX + 14, playerY + 52);
+    }
+    
     var cardSize = ds_list_size(networkPlayerCards);
     scr_drawTextOutline(playerX + 30, playerY + 38, string(cardSize), c_white, c_black);
     
     for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
-        draw_sprite_ext(spr_cards, cond_exp(networkPlayerTeam != team_noone &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+        draw_sprite_ext(spr_cards, cond_exp(global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 
     if (networkPlayerUNO)
         draw_sprite(spr_UNO, 0, playerX + 75, playerY + 38);

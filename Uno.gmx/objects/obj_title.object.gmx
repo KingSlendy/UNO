@@ -177,6 +177,8 @@ switch (buttonState) {
             <kind>1</kind>
             <string>//Title
 draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
+draw_set_font(fnt_connection);
+scr_drawTextOutline(5, 568, "Made by KingSlendy", c_white, c_black);
 
 //Temporary x coordinates
 var tempLoginX = loginX - drawX;
@@ -187,7 +189,6 @@ buttonState = -1;
 
 //Login window
 scr_drawBox(tempLoginX, loginY, tempLoginX + 250, loginY + 140, c_white, 1, c_black);
-draw_set_font(fnt_connection);
 draw_set_halign(fa_center);
 scr_drawTextOutline(tempLoginX + 250 / 2, loginY + 5, "Connection info", c_white, c_black);
 draw_set_font(fnt_login);
@@ -236,7 +237,7 @@ var tempBackX = backX - drawX;
 //Options window
 scr_drawBox(tempOptionsWindowX, optionsWindowY, tempOptionsWindowX + 320, optionsWindowY + 385, c_white, 0.8, c_black);
 
-for (var i = 0; i &lt; 3; i++) {
+for (var i = 0; i &lt; 5; i++) {
     draw_set_font(fnt_connection);
     var drawY = optionsWindowY + (80 * i) + 10;
 
@@ -247,6 +248,8 @@ for (var i = 0; i &lt; 3; i++) {
             for (var j = 0; j &lt; global.maxPlayers - 1; j++) {
                 if (scr_drawCell(tempOptionsWindowX + 20 + (300 / global.maxPlayers * j), drawY + 45, global.numberPlayers - 2 == j, j + 2)) {
                     global.numberPlayers = j + 2;
+                    
+                    if (global.numberPlayers != 4) global.teamsMode = false;
                 }
             }
             break;
@@ -258,6 +261,8 @@ for (var i = 0; i &lt; 3; i++) {
             for (var j = 0; j &lt; array_length_1d(frequency); j++) {
                 if (scr_drawCell(tempOptionsWindowX + 20 + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
                     global.specialsFrequency = j;
+                    
+                    if (global.specialsFrequency != 0) global.onlyQuestion = false;
                 }
             }
             break;
@@ -270,13 +275,21 @@ for (var i = 0; i &lt; 3; i++) {
             break;
             
         case 3: //Game modes
-            scr_drawTextOutline(tempOptionsWindowX + 20, drawY, "Game modes", c_white, c_black);
+            scr_drawTextOutline(tempOptionsWindowX + 20, drawY - 45, "Game modes", c_white, c_black);
+            var modes = new_array("Normal", "Traditional");
             
-            /*for (var j = 0; j &lt; array_length_1d(frequency); j++) {
-                if (scr_drawCell(tempOptionsWindowX + 20 + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
-                    global.specialsFrequency = j;
+            for (var j = 0; j &lt; array_length_1d(modes); j++) {
+                if (scr_drawCell(tempOptionsWindowX + 20 + (300 / array_length_1d(modes) * j), drawY, global.gameMode == j, modes[j])) {
+                    global.gameMode = j;
                 }
-            }*/
+            }
+            break;
+            
+        case 4: //2 vs. 2
+            if (scr_drawCell(tempOptionsWindowX + 20, drawY - 45, global.teamsMode, "2 vs. 2"))
+                global.teamsMode = !global.teamsMode;
+                
+                if (global.teamsMode) global.numberPlayers = 4;
             break;
     }
 }

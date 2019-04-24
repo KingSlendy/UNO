@@ -77,7 +77,7 @@
     <room>rooms\rm_title</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="27">
+  <constants number="26">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -100,7 +100,6 @@
     <constant name="animation_grab">0</constant>
     <constant name="animation_answer">1</constant>
     <constant name="animation_change">2</constant>
-    <constant name="team_noone">-1</constant>
     <constant name="team_red">0</constant>
     <constant name="team_blue">1</constant>
     <constant name="mode_normal">0</constant>

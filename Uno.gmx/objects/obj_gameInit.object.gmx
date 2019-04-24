@@ -31,13 +31,14 @@ global.playerID = -1;
 ini_open("Data.ini");
 global.playerName = ini_read_string("Connection info", "Username", "User");
 global.ip = ini_read_string("Connection info", "IP", "127.0.0.1");
+global.numberPlayers = ini_read_real("Game info", "NumberPlayers", 2);
+global.specialsFrequency = ini_read_real("Game info", "SpecialsFrecuency", 1);
+global.onlyQuestion = ini_read_real("Game info", "OnlyQuestion", false);
+global.gameMode = ini_read_real("Game info", "GameMode", mode_normal);
+global.teamsMode = ini_read_real("Game info", "TeamsMode", false);
 ini_close();
 
-global.numberPlayers = 2;
-global.gameMode = mode_normal;
-global.specialsFrequency = 1;
-global.onlyQuestion = false;
-global.currentTeam = team_noone;
+global.currentTeam = team_red;
 
 enum packets {
     playerJoined, //Player joining the server

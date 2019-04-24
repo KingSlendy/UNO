@@ -9,24 +9,33 @@ switch (packetID) {
         var nowID = buffer_read(buffer, buffer_u8);
         global.numberPlayers = buffer_read(buffer, buffer_u8);
         global.specialsFrecuency = buffer_read(buffer, buffer_u8);
-        global.gameMode = buffer_read(buffer, buffer_u8);
         global.onlyQuestion = buffer_read(buffer, buffer_bool);
+        global.gameMode = buffer_read(buffer, buffer_u8);
+        global.teamsMode = buffer_read(buffer, buffer_bool);
         
         for (var i = 0; i < global.maxPlayers; i++) {
             var checkPlayer = buffer_read(buffer, buffer_bool);
             
             if (checkPlayer) {
                 var nowName = buffer_read(buffer, buffer_string);
+                var nowTeam = buffer_read(buffer, buffer_u8);
                 var nowPlaying = buffer_read(buffer, buffer_bool);
                 var exists = false;
             
-                with (obj_networkPlayer) exists = (i == networkPlayerID);
-    
+                with (obj_networkPlayer) {
+                    if (i == networkPlayerID) {
+                        networkPlayerTeam = nowTeam;
+                        exists = true;
+                    }
+                }
+                
+                if (i == global.playerID) global.currentTeam = nowTeam;
                 if (exists || i == global.playerID || (nowID != global.playerID && i != nowID) || !nowPlaying) continue;
                 
                 var remote = instance_create(0, 0, obj_networkPlayer);
                 remote.networkPlayerID = i;
                 remote.networkPlayerName = nowName;
+                remote.networkPlayerTeam = nowTeam;
             }
         }
         
@@ -109,6 +118,7 @@ switch (packetID) {
         global.sendAll = buffer_read(buffer, buffer_bool);
         global.usedBoomerang = buffer_read(buffer, buffer_bool);
         var playerAttacking = buffer_read(buffer, buffer_u8);
+        var playerTeam = buffer_read(buffer, buffer_u8);
         global.playerAttacking = playerAttacking;
         
         if (!global.usedBoomerang) {
@@ -117,6 +127,9 @@ switch (packetID) {
         
             global.sentNewCards = 0;
         }
+        
+        if (global.sendAll && global.teamsMode && playerTeam == global.currentTeam)
+            global.sendAll = false;
  
         if (global.playerTurn == global.playerID || global.sendAll)
             global.sentNewCards += sentNewCards;
