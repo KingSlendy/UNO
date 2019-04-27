@@ -36,6 +36,10 @@ global.specialsFrequency = ini_read_real("Game info", "SpecialsFrecuency", 1);
 global.onlyQuestion = ini_read_real("Game info", "OnlyQuestion", false);
 global.gameMode = ini_read_real("Game info", "GameMode", mode_normal);
 global.teamsMode = ini_read_real("Game info", "TeamsMode", false);
+global.limitedAnswer = ini_read_real("Game info", "LimitedAnswer", false);
+global.limitedPlay = ini_read_real("Game info", "LimitedPlay", false);
+global.maxAnswer = ini_read_real("Game info", "MaxAnswer", 20);
+global.maxPlay = ini_read_real("Game info", "MaxPlay", 60 * 5);
 ini_close();
 
 global.currentTeam = team_red;
@@ -49,7 +53,8 @@ enum packets {
     playerWon, //Which player won
     playerStopPlaying, //Sets the player sent to not playing
     canHostJoin, //Determines if the player can host/join
-    sentUNO //Player sent an UNO
+    sentUNO, //Player sent an UNO
+    sentTime //Remaining player time
 }
 
 if (!instance_exists(obj_cursor))

@@ -14,6 +14,10 @@ switch (packetID) {
             global.onlyQuestion = buffer_read(buffer, buffer_bool);
             global.gameMode = buffer_read(buffer, buffer_u8);
             global.teamsMode = buffer_read(buffer, buffer_bool);
+            global.limitedAnswer = buffer_read(buffer, buffer_bool);
+            global.limitedPlay = buffer_read(buffer, buffer_bool);
+            global.maxAnswer = buffer_read(buffer, buffer_u8);
+            global.maxPlay = buffer_read(buffer, buffer_u16);
             
             if (irandom(1) == 0) {
                 global.teams = new_array(team_red, team_blue, team_red, team_blue);;
@@ -39,6 +43,10 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
                 buffer_write(global.buffer, buffer_u8, global.gameMode);
                 buffer_write(global.buffer, buffer_bool, global.teamsMode);
+                buffer_write(global.buffer, buffer_bool, global.limitedAnswer);
+                buffer_write(global.buffer, buffer_bool, global.limitedPlay);
+                buffer_write(global.buffer, buffer_u8, global.maxAnswer);
+                buffer_write(global.buffer, buffer_u16, global.maxPlay);
                 
                 for (var j = 0; j < global.maxPlayers; j++) {
                     player = global.players[j, player_object];
@@ -193,6 +201,23 @@ switch (packetID) {
                 buffer_seek(global.buffer, buffer_seek_start, 0);
                 buffer_write(global.buffer, buffer_u8, packets.sentUNO);
                 buffer_write(global.buffer, buffer_u8, sentID);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
+        break;
+        
+    case packets.sentTime:
+        var sentID = buffer_read(buffer, buffer_u8);
+        var timeLeft = buffer_read(buffer, buffer_u16);
+        
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var socket = global.players[i, player_socket];
+            
+            if (socket != -1 && sentID != i) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, packets.sentTime);
+                buffer_write(global.buffer, buffer_u8, sentID);
+                buffer_write(global.buffer, buffer_u16, timeLeft);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }

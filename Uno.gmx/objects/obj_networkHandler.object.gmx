@@ -89,17 +89,25 @@ if (global.playerID == 0) {
     buffer_write(global.buffer, buffer_bool, global.onlyQuestion);
     buffer_write(global.buffer, buffer_u8, global.gameMode);
     buffer_write(global.buffer, buffer_bool, global.teamsMode);
+    buffer_write(global.buffer, buffer_bool, global.limitedAnswer);
+    buffer_write(global.buffer, buffer_bool, global.limitedPlay);
+    buffer_write(global.buffer, buffer_u8, global.maxAnswer);
+    buffer_write(global.buffer, buffer_u16, global.maxPlay);
+    
+    ini_open("Data.ini");
+    ini_write_real("Game info", "NumberPlayers", global.numberPlayers);
+    ini_write_real("Game info", "SpecialsFrecuency", global.specialsFrequency);
+    ini_write_real("Game info", "OnlyQuestion", global.onlyQuestion);
+    ini_write_real("Game info", "GameMode", global.gameMode);
+    ini_write_real("Game info", "TeamsMode", global.teamsMode);
+    ini_write_real("Game info", "LimitedAnswer", global.limitedAnswer);
+    ini_write_real("Game info", "LimitedPlay", global.limitedPlay);
+    ini_write_real("Game info", "MaxAnswer", global.maxAnswer);
+    ini_write_real("Game info", "MaxPlay", global.maxPlay);
+    ini_close();
 }
     
 network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
-
-ini_open("Data.ini");
-ini_write_real("Game info", "NumberPlayers", global.numberPlayers);
-ini_write_real("Game info", "SpecialsFrecuency", global.specialsFrequency);
-ini_write_real("Game info", "OnlyQuestion", global.onlyQuestion);
-ini_write_real("Game info", "GameMode", global.gameMode);
-ini_write_real("Game info", "TeamsMode", global.teamsMode);
-ini_close();
 </string>
           </argument>
         </arguments>

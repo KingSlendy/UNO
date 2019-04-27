@@ -33,7 +33,47 @@ holding = false;
 minusX = 0;
 minusY = 0;
 cardID = -1;
+totalCards = 0;
+cardCount = 0;
 penaltyCards = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var cardDistance = 44;
+
+if (cardCount &lt; newCards[global.playerID]) {
+    var newX = clamp(400 - ((cardDistance * (totalCards + cardCount)) / 2) + cardDistance * cardCount, 76, 724);
+    
+    if (totalCards == 0)
+        newX = clamp(400 + ((cardDistance * (totalCards + cardCount)) / 2) - cardDistance * cardCount, 76, 724);
+    
+    var newY = global.cardY[global.playerID];
+    var animSpeed = point_distance(x, y, newX, newY) / point_distance(x, y, 400, newY);
+    scr_playAnimation(animation_grab, x, y, newX, newY, 12 * animSpeed, 1, 0, global.playerID);
+    cardCount++;
+    alarm[0] = 8;
+} else {
+    cardCount = 0;
+}
 </string>
           </argument>
         </arguments>
@@ -60,13 +100,18 @@ penaltyCards = false;
 
 for (var i = 0; i &lt; array_length_1d(targets); i++) {
     if (targets[i]) {
-        var newX = global.cardX[i];
-        var newY = global.cardY[i];
-        var newSpacing = cond_exp(i == global.playerID, 72, 26);
-    
-        for (var j = 0; j &lt; newCards[i]; j++) {
-            var animSpeed = point_distance(x, y, newX + newSpacing * j, newY) / point_distance(x, y, newX, newY);
-            scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
+        if (i == global.playerID) {
+            totalCards = instance_number(obj_cards) - 2;
+            event_perform(ev_alarm, 0);
+        } else {
+            var newX = global.cardX[i];
+            var newY = global.cardY[i];
+            var newSpacing = cond_exp(i == global.playerID, 44, 26);
+        
+            for (var j = 0; j &lt; newCards[i]; j++) {
+                var animSpeed = point_distance(x, y, newX + newSpacing * j, newY) / point_distance(x, y, newX, newY);
+                scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
+            }
         }
     
         backAngle[i] = irandom_range(-10, 10);
@@ -100,14 +145,13 @@ for (var i = 0; i &lt; array_length_1d(targets); i++) {
 for (var i = 0; i &lt; global.numberPlayers; i++) {
     if (execute[i]) {
         if (i == global.playerID) {
-            repeat (newCards[i]) {
-                var newCard = instance_create(x, y, obj_cards);
-                newCard.visible = false;
+            if (ds_list_size(global.cardList) &lt; 99) {
+                with (instance_create(x, y, obj_cards)) event_user(1);
                 
-                with (newCard) event_user(1);
+                scr_updateCards();
             }
             
-            event_user(0);           
+            if (!global.playingAnimation) event_user(0);
         } else {
             with (obj_networkPlayer) {
                 if (networkPlayerID == i) {
@@ -179,7 +223,7 @@ outlineIndex %= sprite_get_number(spr_cardsOutline);
             <string>if (status != stack_normal || !holding) exit;
 
 holding = false;
-depth = -1;
+depth = -cardID;
 
 if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished) {
     if (place_meeting(x, y, obj_cards)) {
@@ -243,20 +287,29 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
             <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished) exit;
 
 if ((status == stack_grab || global.gameInitial) &amp;&amp; !global.drew &amp;&amp; global.sentNewCards == 0 &amp;&amp; !global.playingAnimation) {
-    if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID) {
+    if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID &amp;&amp; ds_list_size(global.cardList) &lt; 99) {
         targets[global.playerID] = true;
+        newCards[global.playerID] = 1;
         global.drawing = true;
     }
     
     exit;
 }
 
-if (!visible || status == stack_answer || holding) exit;
+var holdingCard = false;
+
+with (obj_cards) {
+    if (status == stack_normal) {
+        if (holding) holdingCard = true;
+    }
+}
+
+if (status == stack_answer || holding || holdingCard) exit;
 
 minusX = abs(mouse_x - (x - sprite_xoffset));
 minusY = abs(mouse_y - (y - sprite_yoffset));
 holding = true;
-depth = -2;
+depth = -100;
 </string>
           </argument>
         </arguments>
@@ -324,18 +377,12 @@ if (in_range(global.specialsFrecuency, 1, 3)) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>ds_list_clear(global.cardList);
+            <string>scr_updateCards();
 var cardDrawn = 0;
-        
+
 with (obj_cards) {
-    if (status == stack_normal) {
-        cardID = ds_list_size(global.cardList);
-        
-        if (cardID == 0)
-            cardDrawn = image_index;
-        
-        visible = (cardID &lt; 9);
-        ds_list_add(global.cardList, image_index);
+    if (status == stack_normal &amp;&amp; cardID == 0) {
+        cardDrawn = image_index;
     }
 }
 
@@ -344,7 +391,7 @@ if (instance_number(obj_cards) - 2 &gt;= 9 &amp;&amp; global.cardView + 9 &gt; i
 
 if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; global.playerID == 0)) {
     if (!global.drawing) global.drew = false;
-    if (global.drawing &amp;&amp; scr_canAnswer(cardDrawn)) global.drew = true;
+    if (global.timeLeft != 0 &amp;&amp; global.drawing &amp;&amp; scr_canAnswer(cardDrawn)) global.drew = true;
     
     var cardStack = 0;
     var sendCards = 0;
@@ -450,6 +497,16 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
 with (obj_gameController) {
     event_perform(ev_step, ev_step_normal);
     event_user(0);
+}
+
+if (global.gameInitial &amp;&amp; !penaltyCards &amp;&amp; !global.drew &amp;&amp; (global.limitedAnswer || global.limitedPlay) &amp;&amp; global.playerTurn == global.playerID) {
+    with (obj_gameController) {
+        event_user(1);
+    }
+}
+
+if (global.playerTurn != global.playerID) {
+    obj_gameController.alarm[0] = 0;
 }
 
 global.gameInitial = false;

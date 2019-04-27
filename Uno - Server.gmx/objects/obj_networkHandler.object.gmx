@@ -37,6 +37,10 @@ global.onlyQuestion = false;
 global.gameMode = 0;
 global.teamsMode = false;
 global.teams = new_array(team_red, team_red, team_blue, team_blue);
+global.limitedAnswer = false;
+global.limitedPlay = false;
+global.maxAnswer = 20;
+global.maxPlay = 60;
 
 enum packets {
     playerJoined, //Player joining the server
@@ -47,7 +51,8 @@ enum packets {
     playerWon, //Which player won
     playerStopPlaying, //Sets the player sent to not playing
     canHostJoin, //Determines if the player can host/join
-    sentUNO //Player sent an UNO
+    sentUNO, //Player sent an UNO
+    sentTime //Player time remaining
 }
 </string>
           </argument>

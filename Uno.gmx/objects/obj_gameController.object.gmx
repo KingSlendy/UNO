@@ -119,6 +119,58 @@ buttonSkipY = 420;
         </arguments>
       </action>
     </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (--global.timeLeft &lt;= 0) {
+    if (global.limitedAnswer) {
+        with (obj_cards) {
+            if (status == stack_grab) {
+                event_perform(ev_mouse, ev_left_press);
+            }
+        }
+    }
+    
+    if (global.limitedPlay) {
+        with (obj_cards) {
+            if (status == stack_answer) {
+                global.skipping = true;
+                event_user(0);
+            }
+        }
+    }
+    
+    global.timeLeft = 0;
+} else {
+    alarm[0] = room_speed;
+}
+
+if (global.timeLeft % 5 == 0) {
+    buffer_seek(global.buffer, buffer_seek_start, 0);
+    buffer_write(global.buffer, buffer_u8, packets.sentTime);
+    buffer_write(global.buffer, buffer_u8, global.playerID);
+    buffer_write(global.buffer, buffer_u16, global.timeLeft);
+    network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="3" enumb="2">
       <action>
         <libid>1</libid>
@@ -216,17 +268,61 @@ buttonSkipY = 420;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>with (obj_cards) {
-    if (status == stack_normal &amp;&amp; cardID != -1) {
-        var viewRange = in_range(cardID, global.cardView, global.cardView + 8);
-        visible = viewRange;
-        
-        if (viewRange) {
-            x = 112 + 72 * (cardID - global.cardView);
-            y = 544;
+            <string>var totalCards = instance_number(obj_cards) - 2;
+var cardDistance = 44;
+var maxCards = 16;
+
+if (totalCards &gt; maxCards) {
+    if (scr_mouseInArea(0, 488, 66, 600))
+        global.cardView += 5;
+    
+    if (scr_mouseInArea(734, 488, 800, 600))
+        global.cardView -= 5;
+    
+    global.cardView = clamp(global.cardView, -(cardDistance / 2) * (totalCards - maxCards), (cardDistance / 2) * (totalCards - maxCards));
+}
+
+with (obj_cards) {
+    if (status == stack_normal) {
+        if (totalCards &gt; 1) {
+            x = clamp((400 - ((cardDistance * (totalCards - 1)) / 2) + cardDistance * cardID) + global.cardView, 76, 724);
+        } else {
+            x = 400;
         }
+        
+        y = 544;
     }
 }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="11">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (global.limitedAnswer) global.timeLeft = global.maxAnswer;
+
+buffer_seek(global.buffer, buffer_seek_start, 0);
+buffer_write(global.buffer, buffer_u8, packets.sentTime);
+buffer_write(global.buffer, buffer_u8, global.playerID);
+buffer_write(global.buffer, buffer_u16, global.timeLeft);
+network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
+alarm[0] = room_speed;
 </string>
           </argument>
         </arguments>
@@ -343,7 +439,12 @@ if (!global.teamsMode) {
 
 scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
 
-if (global.UNO) draw_sprite(spr_UNO, 0, 75, 446);
+if (global.UNO) draw_sprite(spr_UNO, 0, 65, 446);
+
+if (global.limitedAnswer || global.limitedPlay) {
+    draw_sprite(spr_clock, 0, 120, 446);
+    scr_drawTextOutline(145, 446, scr_formattedTime(global.timeLeft), c_white, c_black);
+}
 
 //Other player's information
 with (obj_networkPlayer) {
@@ -366,7 +467,12 @@ with (obj_networkPlayer) {
         draw_sprite_ext(spr_cards, cond_exp(global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 
     if (networkPlayerUNO)
-        draw_sprite(spr_UNO, 0, playerX + 75, playerY + 38);
+        draw_sprite(spr_UNO, 0, playerX + 65, playerY + 38);
+        
+    if (global.limitedAnswer || global.limitedPlay) {
+        draw_sprite(spr_clock, 0, playerX + 120, playerY + 38);
+        scr_drawTextOutline(playerX + 145, playerY + 38, scr_formattedTime(networkPlayerTime), c_white, c_black);
+    }
 }
 
 //Middle information

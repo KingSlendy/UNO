@@ -29,6 +29,7 @@
 networkPlayerName = "User";
 networkPlayerTeam = team_red;
 networkPlayerCards = ds_list_create();
+networkPlayerTime = 10;
 networkPlayerUNO = false;
 </string>
           </argument>

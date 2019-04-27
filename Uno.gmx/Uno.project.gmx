@@ -18,6 +18,7 @@
     <sprite>sprites\spr_cardColor</sprite>
     <sprite>sprites\spr_dirTurns</sprite>
     <sprite>sprites\spr_UNO</sprite>
+    <sprite>sprites\spr_clock</sprite>
     <sprite>sprites\sprite7</sprite>
   </sprites>
   <backgrounds name="background"/>
@@ -33,15 +34,18 @@
       <script>scripts\scr_incrementTurn.gml</script>
       <script>scripts\scr_canAnswer.gml</script>
       <script>scripts\scr_shuffleCard.gml</script>
+      <script>scripts\scr_updateCards.gml</script>
     </scripts>
     <scripts name="Extra">
       <script>scripts\scr_inRange.gml</script>
+      <script>scripts\scr_mouseInArea.gml</script>
       <script>scripts\scr_mouseInBox.gml</script>
       <script>scripts\scr_drawTextOutline.gml</script>
       <script>scripts\scr_drawBox.gml</script>
       <script>scripts\scr_drawButton.gml</script>
       <script>scripts\scr_drawButtonLogin.gml</script>
       <script>scripts\scr_drawCell.gml</script>
+      <script>scripts\scr_formattedTime.gml</script>
     </scripts>
   </scripts>
   <shaders name="shaders">

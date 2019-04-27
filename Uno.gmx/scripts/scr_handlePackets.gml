@@ -12,6 +12,14 @@ switch (packetID) {
         global.onlyQuestion = buffer_read(buffer, buffer_bool);
         global.gameMode = buffer_read(buffer, buffer_u8);
         global.teamsMode = buffer_read(buffer, buffer_bool);
+        global.limitedAnswer = buffer_read(buffer, buffer_bool);
+        global.limitedPlay = buffer_read(buffer, buffer_bool);
+        global.maxAnswer = buffer_read(buffer, buffer_u8);
+        global.maxPlay = buffer_read(buffer, buffer_u16);
+        global.timeLeft = 20;
+        
+        if (global.limitedAnswer) global.timeLeft = global.maxAnswer;
+        if (global.limitedPlay) global.timeLeft = global.maxPlay;
         
         for (var i = 0; i < global.maxPlayers; i++) {
             var checkPlayer = buffer_read(buffer, buffer_bool);
@@ -36,6 +44,7 @@ switch (packetID) {
                 remote.networkPlayerID = i;
                 remote.networkPlayerName = nowName;
                 remote.networkPlayerTeam = nowTeam;
+                remote.networkPlayerTime = global.timeLeft;
             }
         }
         
@@ -134,6 +143,12 @@ switch (packetID) {
         if (global.playerTurn == global.playerID || global.sendAll)
             global.sentNewCards += sentNewCards;
         
+        if ((global.limitedAnswer || global.limitedPlay) && global.playerTurn == global.playerID) {
+            with (obj_gameController) {
+                event_user(1);
+            }
+        }
+            
         global.gameStarted = true;
         break;
         
@@ -162,6 +177,17 @@ switch (packetID) {
             if (networkPlayerID == playerID) {
                 networkPlayerUNO = true;
                 alarm[0] = room_speed * 2;
+            }
+        }
+        break;
+        
+    case packets.sentTime:
+        var playerID = buffer_read(buffer, buffer_u8);
+        var timeLeft = buffer_read(buffer, buffer_u16);
+        
+        with (obj_networkPlayer) {
+            if (networkPlayerID == playerID) {
+                networkPlayerTime = timeLeft;
             }
         }
         break;
