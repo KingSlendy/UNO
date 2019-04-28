@@ -75,8 +75,7 @@ switch (packetID) {
         if (!answering) {
             with (obj_cards) {
                 if (status == stack_grab) {
-                    targets[playerID] = true;
-                    newCards[playerID] = sentCards;
+                    execute[playerID] = true;
                     
                     if (!is_undefined(cardList))
                         playerList[playerID] = cardList;
@@ -97,6 +96,19 @@ switch (packetID) {
         }
         break;
         
+    case packets.playerGrabCardsUpdate:
+        var playerID = buffer_read(buffer, buffer_u8);
+        var sentCards = buffer_read(buffer, buffer_u8);
+        
+        with (obj_cards) {
+            if (status == stack_grab) {
+                targets[playerID] = true;
+                newCards[playerID] = sentCards;
+                playerList[playerID] = noone;
+            }
+        }
+        break;
+        
     case packets.playerTurnInfo:
         var playerID = buffer_read(buffer, buffer_u8);
         var gameStarted = buffer_read(buffer, buffer_bool);
@@ -107,7 +119,7 @@ switch (packetID) {
             if (answering) {
                 with (obj_networkPlayer) {
                     if (networkPlayerID == playerID) {
-                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 496, 352, 12, 0, cardStack, playerID);
+                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 496, 352, 12, 0, cardStack, playerID, false);
                     }
                 }
             }
@@ -165,9 +177,8 @@ switch (packetID) {
             alarm[0] = 1;
         } else {
             show_message(message);
+            obj_title.fetchingHostJoin = false;
         }
-        
-        obj_title.fetchingHostJoin = false;
         break;
         
     case packets.sentUNO:

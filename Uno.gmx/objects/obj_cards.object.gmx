@@ -30,50 +30,13 @@ outlineSpeed = 1 / 2;
 outlineIndex = 0;
 status = stack_normal;
 holding = false;
+highlighted = false;
 minusX = 0;
 minusY = 0;
 cardID = -1;
 totalCards = 0;
-cardCount = 0;
+endAnimation = false;
 penaltyCards = false;
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
-    <event eventtype="2" enumb="0">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>var cardDistance = 44;
-
-if (cardCount &lt; newCards[global.playerID]) {
-    var newX = clamp(400 - ((cardDistance * (totalCards + cardCount)) / 2) + cardDistance * cardCount, 76, 724);
-    
-    if (totalCards == 0)
-        newX = clamp(400 + ((cardDistance * (totalCards + cardCount)) / 2) - cardDistance * cardCount, 76, 724);
-    
-    var newY = global.cardY[global.playerID];
-    var animSpeed = point_distance(x, y, newX, newY) / point_distance(x, y, 400, newY);
-    scr_playAnimation(animation_grab, x, y, newX, newY, 12 * animSpeed, 1, 0, global.playerID);
-    cardCount++;
-    alarm[0] = 8;
-} else {
-    cardCount = 0;
-}
 </string>
           </argument>
         </arguments>
@@ -98,20 +61,18 @@ if (cardCount &lt; newCards[global.playerID]) {
             <kind>1</kind>
             <string>if (status != stack_grab) exit;
 
-for (var i = 0; i &lt; array_length_1d(targets); i++) {
+for (var i = 0; i &lt; global.numberPlayers; i++) {
     if (targets[i]) {
+        grabCards[i] = true;
+        cardTimer[i] = 8;
+    
         if (i == global.playerID) {
             totalCards = instance_number(obj_cards) - 2;
-            event_perform(ev_alarm, 0);
-        } else {
-            var newX = global.cardX[i];
-            var newY = global.cardY[i];
-            var newSpacing = cond_exp(i == global.playerID, 44, 26);
-        
-            for (var j = 0; j &lt; newCards[i]; j++) {
-                var animSpeed = point_distance(x, y, newX + newSpacing * j, newY) / point_distance(x, y, newX, newY);
-                scr_playAnimation(animation_grab, x, y, newX + newSpacing * j, newY, 12 * animSpeed, 1, 0, i);
-            }
+            buffer_seek(global.buffer, buffer_seek_start, 0);
+            buffer_write(global.buffer, buffer_u8, packets.playerGrabCardsUpdate);
+            buffer_write(global.buffer, buffer_u8, global.playerID);
+            buffer_write(global.buffer, buffer_u8, newCards[global.playerID]);
+            network_send_packet(global.socket, global.buffer, buffer_tell(global.buffer));
         }
     
         backAngle[i] = irandom_range(-10, 10);
@@ -151,17 +112,20 @@ for (var i = 0; i &lt; global.numberPlayers; i++) {
                 scr_updateCards();
             }
             
-            if (!global.playingAnimation) event_user(0);
+            if (endAnimation) event_user(0);
         } else {
             with (obj_networkPlayer) {
                 if (networkPlayerID == i) {
-                    ds_list_clear(networkPlayerCards);
                     var setList = other.playerList[i];
                     
                     if (setList != noone) {
+                        ds_list_clear(networkPlayerCards);
+                    
                         for (var j = 0; j &lt; array_length_1d(setList); j++) {
                             ds_list_add(networkPlayerCards, setList[j]);
                         }
+                    } else {
+                        ds_list_add(networkPlayerCards, 0);
                     }
                 }
             }
@@ -176,6 +140,55 @@ for (var i = 0; i &lt; global.numberPlayers; i++) {
       </action>
     </event>
     <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (status == stack_grab) {
+    for (var i = 0; i &lt; global.numberPlayers; i++) {
+        if (cardCount[i] &gt;= newCards[i]) {
+            cardCount[i] = 0;
+            grabCards[i] = false;
+            
+            continue;
+        }
+    
+        if (grabCards[i] &amp;&amp; cardTimer[i]++ &gt;= 8) {
+            var newX = global.cardX[i];
+            var newY = global.cardY[i];
+            var animSpeed = 1;
+        
+            if (i == global.playerID) {
+                var cardDistance = 44;
+                newX = clamp(400 - (cardDistance * totalCards) / 2 - (cardDistance * cardCount[i]) / 2, 76, 724);
+                
+                if (totalCards + cardCount[i] == 0) newX = 400;
+                
+                animSpeed = point_distance(x, y, newX, newY) / point_distance(x, y, 400, newY);
+            }
+            
+            cardCount[i]++;
+            scr_playAnimation(animation_grab, x, y, newX, newY, 12 * animSpeed, 1, 0, i, cardCount[i] &gt;= newCards[i]); 
+            cardTimer[i] = 0;
+        }
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -386,9 +399,6 @@ with (obj_cards) {
     }
 }
 
-if (instance_number(obj_cards) - 2 &gt;= 9 &amp;&amp; global.cardView + 9 &gt; instance_number(obj_cards) - 2)
-    global.cardView = instance_number(obj_cards) - 2 - 9;
-
 if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; global.playerID == 0)) {
     if (!global.drawing) global.drew = false;
     if (global.timeLeft != 0 &amp;&amp; global.drawing &amp;&amp; scr_canAnswer(cardDrawn)) global.drew = true;
@@ -434,6 +444,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
                 }
             }
             
+            global.cardView = 0;
             global.changing = true;
             penaltyCards = true;
         }
@@ -505,9 +516,8 @@ if (global.gameInitial &amp;&amp; !penaltyCards &amp;&amp; !global.drew &amp;&am
     }
 }
 
-if (global.playerTurn != global.playerID) {
+if (global.playerTurn != global.playerID)
     obj_gameController.alarm[0] = 0;
-}
 
 global.gameInitial = false;
 global.gameStarted = true;
@@ -522,6 +532,7 @@ if (!penaltyCards) global.changing = false;
 
 global.UNO = false;
 global.skipping = false;
+endAnimation = false;
 </string>
           </argument>
         </arguments>
@@ -549,6 +560,9 @@ global.skipping = false;
     execute = array_repeat(false, global.maxPlayers);
     targets = array_repeat(false, global.maxPlayers);
     newCards = array_repeat(1, global.maxPlayers);
+    cardCount = array_repeat(0, global.maxPlayers);
+    grabCards = array_repeat(false, global.maxPlayers);
+    cardTimer = array_repeat(0, global.maxPlayers);
     backAngle = array_repeat(0, 4);
     
     for (var i = 0; i &lt; 4; i++)
@@ -576,7 +590,11 @@ global.skipping = false;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_self();
+            <string>/*if (highlighted &amp;&amp; !holding) {
+    draw_sprite(sprite_index, image_index, x, y - 24);
+} else {*/
+    draw_self();
+//}
 
 if (status == stack_grab) {
     for (var i = 0; i &lt; 4; i++) {
@@ -584,9 +602,12 @@ if (status == stack_grab) {
     }
 }
 
+//if (highlighted &amp;&amp; !place_meeting(x, y, obj_cursor)) highlighted = false;
+
 if (global.gameFinished || status != stack_normal || !place_meeting(x, y, obj_cursor)) exit;
 
-draw_sprite(spr_cardsOutline, floor(outlineIndex), x, y);
+//highlighted = true;
+draw_sprite(spr_cardsOutline, floor(outlineIndex), x, y/* - cond_exp(highlighted &amp;&amp; !holding, 24, 0)*/);
 </string>
           </argument>
         </arguments>

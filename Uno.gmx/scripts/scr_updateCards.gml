@@ -9,5 +9,5 @@ with (obj_cards) {
     }
 }
 
-if (ds_list_size(global.cardList) > 16)
-    global.cardView = 1826;
+if (ds_list_size(global.cardList) <= 16)
+    global.cardView = 0;

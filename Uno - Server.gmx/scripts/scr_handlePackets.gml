@@ -96,6 +96,23 @@ switch (packetID) {
         }
         break;
         
+    case packets.playerGrabCardsUpdate:
+        var sentID = buffer_read(buffer, buffer_u8);
+        var newCards = buffer_read(buffer, buffer_u8);
+
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var socket = global.players[i, player_socket];
+        
+            if (i != sentID && socket != -1) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, packets.playerGrabCardsUpdate);
+                buffer_write(global.buffer, buffer_u8, sentID);
+                buffer_write(global.buffer, buffer_u16, newCards);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
+        break;
+        
     case packets.playerTurnInfo:
         var sentID = buffer_read(buffer, buffer_u8);
         var gameStarted = buffer_read(buffer, buffer_bool);

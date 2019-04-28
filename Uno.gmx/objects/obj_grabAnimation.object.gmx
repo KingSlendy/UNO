@@ -3,7 +3,7 @@
   <spriteName>spr_cards</spriteName>
   <solid>0</solid>
   <visible>0</visible>
-  <depth>-100</depth>
+  <depth>-101</depth>
   <persistent>0</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
@@ -32,6 +32,7 @@ spd = 0;
 action = -1;
 spawn = 0;
 target = 0;
+endAnim = false;
 alarm[1] = 1;
 </string>
           </argument>
@@ -114,6 +115,7 @@ switch (action) {
         with (obj_cards) {
             if (status == stack_grab) {
                 execute[other.target] = true;
+                endAnimation = other.endAnim;
             }
         }
         break;

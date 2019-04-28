@@ -272,6 +272,8 @@ for (var i = 0; i &lt; 6; i++) {
             if (scr_drawCell(tempX, drawY, global.onlyQuestion, "Only ? cards")) {
                 global.onlyQuestion = !global.onlyQuestion;
                 global.specialsFrequency = cond_exp(global.onlyQuestion, 0, global.specialsFrequency);
+                
+                if (global.onlyQuestion) global.gameMode = mode_normal;
             }
             break;
             
@@ -282,6 +284,8 @@ for (var i = 0; i &lt; 6; i++) {
             for (var j = 0; j &lt; array_length_1d(modes); j++) {
                 if (scr_drawCell(tempX + (300 / array_length_1d(modes) * j), drawY, global.gameMode == j, modes[j])) {
                     global.gameMode = j;
+                    
+                    if (global.gameMode == mode_traditional) global.onlyQuestion = false;
                 }
             }
             break;

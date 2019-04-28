@@ -136,11 +136,29 @@ buttonSkipY = 420;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (--global.timeLeft &lt;= 0) {
+            <string>if (global.playingAnimation) {
+    alarm[0] = 1;
+    
+    exit;
+}
+
+if (--global.timeLeft &lt;= 0) {
     if (global.limitedAnswer) {
         with (obj_cards) {
             if (status == stack_grab) {
-                event_perform(ev_mouse, ev_left_press);
+                if (global.sentNewCards == 0) {
+                    event_perform(ev_mouse, ev_left_press)
+                } else {
+                    targets[global.playerID] = true;
+                    newCards[global.playerID] = global.sentNewCards + 1;
+                    
+                    with (obj_cards) {
+                        if (status == stack_answer) {
+                            global.skipping = true;
+                            event_user(0);
+                        }
+                    }
+                }
             }
         }
     }
@@ -285,7 +303,7 @@ if (totalCards &gt; maxCards) {
 with (obj_cards) {
     if (status == stack_normal) {
         if (totalCards &gt; 1) {
-            x = clamp((400 - ((cardDistance * (totalCards - 1)) / 2) + cardDistance * cardID) + global.cardView, 76, 724);
+            x = clamp((400 - cardDistance * (totalCards - 1) / 2 + cardDistance * cardID) + global.cardView, 76, 724);
         } else {
             x = 400;
         }
@@ -463,8 +481,8 @@ with (obj_networkPlayer) {
     var cardSize = ds_list_size(networkPlayerCards);
     scr_drawTextOutline(playerX + 30, playerY + 38, string(cardSize), c_white, c_black);
     
-    for (var i = 0; i &lt; clamp(cardSize, 0, 7); i++)
-        draw_sprite_ext(spr_cards, cond_exp(global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 26 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+    for (var i = 0; i &lt; clamp(cardSize, 0, 14); i++)
+        draw_sprite_ext(spr_cards, cond_exp(global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 12 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 
     if (networkPlayerUNO)
         draw_sprite(spr_UNO, 0, playerX + 65, playerY + 38);
