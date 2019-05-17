@@ -37,6 +37,7 @@ cardID = -1;
 totalCards = 0;
 endAnimation = false;
 penaltyCards = false;
+choseColor = false;
 </string>
           </argument>
         </arguments>
@@ -125,7 +126,7 @@ for (var i = 0; i &lt; global.numberPlayers; i++) {
                             ds_list_add(networkPlayerCards, setList[j]);
                         }
                     } else {
-                        ds_list_add(networkPlayerCards, 0);
+                        ds_list_insert(networkPlayerCards, 0, 0);
                     }
                 }
             }
@@ -238,7 +239,7 @@ outlineIndex %= sprite_get_number(spr_cardsOutline);
 holding = false;
 depth = -cardID;
 
-if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &amp;&amp; !global.gameFinished) {
+if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &amp;&amp; !global.choosingColor &amp;&amp; !global.gameFinished) {
     if (place_meeting(x, y, obj_cards)) {
         with (instance_place(x, y, obj_cards)) {
             if (status == stack_answer) {
@@ -256,7 +257,13 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
                         var blackCard = image_index - 65;
                     
                         switch (blackCard) {
-                            case 0: case 5: global.cardColor = irandom_range(card_red, card_blue); break;
+                            case 0: case 5:
+                                instance_create(400, 304, obj_chooseColors);
+                                
+                                obj_gameController.alarm[0] = 0;
+                                global.choosingColor = true;
+                                break;
+                                
                             case 1: case 2: case 3: case 4: global.cardColor = blackCard + 1; break;
                             case 6: case 7: case 8: case 9: global.cardColor = blackCard - 4; break;
                         }
@@ -299,7 +306,7 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
             <kind>1</kind>
             <string>if (!global.gameInitial &amp;&amp; !global.gameStarted || global.gameFinished) exit;
 
-if ((status == stack_grab || global.gameInitial) &amp;&amp; !global.drew &amp;&amp; global.sentNewCards == 0 &amp;&amp; !global.playingAnimation) {
+if ((status == stack_grab || global.gameInitial) &amp;&amp; (!global.drew || global.gameMode == mode_traditional) &amp;&amp; global.sentNewCards == 0 &amp;&amp; !global.choosingColor &amp;&amp; !global.playingAnimation) {
     if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID &amp;&amp; ds_list_size(global.cardList) &lt; 99) {
         targets[global.playerID] = true;
         newCards[global.playerID] = 1;
@@ -317,7 +324,7 @@ with (obj_cards) {
     }
 }
 
-if (status == stack_answer || holding || holdingCard) exit;
+if (status == stack_answer || holding || holdingCard || global.choosingColor) exit;
 
 minusX = abs(mouse_x - (x - sprite_xoffset));
 minusY = abs(mouse_y - (y - sprite_yoffset));
@@ -399,9 +406,11 @@ with (obj_cards) {
     }
 }
 
+if (global.choosingColor) exit;
+
 if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; global.playerID == 0)) {
-    if (!global.drawing) global.drew = false;
-    if (global.timeLeft != 0 &amp;&amp; global.drawing &amp;&amp; scr_canAnswer(cardDrawn)) global.drew = true;
+    if (!global.drawing &amp;&amp; (global.gameMode != mode_traditional || global.answering)) global.drew = false;
+    if (global.timeLeft != 0 &amp;&amp; global.drawing &amp;&amp; (scr_canAnswer(cardDrawn) || global.gameMode == mode_traditional)) global.drew = true;
     
     var cardStack = 0;
     var sendCards = 0;
@@ -464,7 +473,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
     if (!global.gameInitial &amp;&amp; !global.sendAll &amp;&amp; !global.drew) {
         var turn = 1;
     
-        if (global.answering) {
+        if (global.answering || choseColor) {
             if (array_contains(global.cardTypes[card_skip], cardStack)) {
                 turn = 2;
             } else if (array_contains(global.cardTypes[card_reverse], cardStack)) {
@@ -485,7 +494,7 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
             }
         }
         
-        scr_incrementTurn(turn);
+        scr_incrementTurn(turn); 
     }
 
     buffer_seek(global.buffer, buffer_seek_start, 0);
@@ -533,6 +542,7 @@ if (!penaltyCards) global.changing = false;
 global.UNO = false;
 global.skipping = false;
 endAnimation = false;
+choseColor = false;
 </string>
           </argument>
         </arguments>
@@ -590,11 +600,7 @@ endAnimation = false;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/*if (highlighted &amp;&amp; !holding) {
-    draw_sprite(sprite_index, image_index, x, y - 24);
-} else {*/
-    draw_self();
-//}
+            <string>draw_self();
 
 if (status == stack_grab) {
     for (var i = 0; i &lt; 4; i++) {
@@ -602,12 +608,9 @@ if (status == stack_grab) {
     }
 }
 
-//if (highlighted &amp;&amp; !place_meeting(x, y, obj_cursor)) highlighted = false;
-
 if (global.gameFinished || status != stack_normal || !place_meeting(x, y, obj_cursor)) exit;
 
-//highlighted = true;
-draw_sprite(spr_cardsOutline, floor(outlineIndex), x, y/* - cond_exp(highlighted &amp;&amp; !holding, 24, 0)*/);
+draw_sprite(spr_cardsOutline, floor(outlineIndex), x, y);
 </string>
           </argument>
         </arguments>

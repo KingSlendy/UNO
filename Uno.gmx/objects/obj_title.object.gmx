@@ -43,6 +43,7 @@ optionsWindowX = 800 + 50;
 optionsWindowY = 25;
 backX = 800 + 300;
 backY = 450;
+currentPage = 0;
 </string>
           </argument>
         </arguments>
@@ -179,6 +180,9 @@ switch (buttonState) {
 draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(angle)), c_white, 1);
 draw_set_font(fnt_connection);
 scr_drawTextOutline(5, 568, "Made by KingSlendy", c_white, c_black);
+draw_set_halign(fa_right);
+scr_drawTextOutline(800, 568, "v0.5", c_white, c_black);
+draw_set_halign(fa_left);
 
 //Temporary x coordinates
 var tempLoginX = loginX - drawX;
@@ -238,93 +242,130 @@ var tempBackX = backX - drawX;
 scr_drawBox(tempOptionsWindowX, optionsWindowY, tempOptionsWindowX + 320, optionsWindowY + 385, c_white, 0.8, c_black);
 var tempX = tempOptionsWindowX + 20;
 
-for (var i = 0; i &lt; 6; i++) {
-    draw_set_font(fnt_connection);
-    var drawY = optionsWindowY + (80 * i) + 10;
-
-    switch (i) {
-        case 0: //Number of players
-            scr_drawTextOutline(tempX, drawY, "Number of players", c_white, c_black);
-            
-            for (var j = 0; j &lt; global.maxPlayers - 1; j++) {
-                if (scr_drawCell(tempX + (300 / global.maxPlayers * j), drawY + 45, global.numberPlayers - 2 == j, j + 2)) {
-                    global.numberPlayers = j + 2;
-                    
-                    if (global.numberPlayers != 4) global.teamsMode = false;
-                }
-            }
-            break;
+switch (currentPage) {
+    case 0:
+        for (var i = 0; i &lt; 7; i++) {
+            draw_set_font(fnt_connection);
+            var drawY = optionsWindowY + (80 * i);
         
-        case 1: //Specials frequency
-            scr_drawTextOutline(tempX, drawY, "Specials frequency", c_white, c_black);
-            var frequency = new_array("A", "H", "M", "L", "W");
-            
-            for (var j = 0; j &lt; array_length_1d(frequency); j++) {
-                if (scr_drawCell(tempX + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
-                    global.specialsFrequency = j;
+            switch (i) {
+                case 0: //Number of players
+                    scr_drawTextOutline(tempX, drawY, "Number of players", c_white, c_black);
                     
-                    if (global.specialsFrequency != 0) global.onlyQuestion = false;
-                }
-            }
-            break;
-            
-        case 2: //Only ? cards
-            if (scr_drawCell(tempX, drawY, global.onlyQuestion, "Only ? cards")) {
-                global.onlyQuestion = !global.onlyQuestion;
-                global.specialsFrequency = cond_exp(global.onlyQuestion, 0, global.specialsFrequency);
+                    for (var j = 0; j &lt; global.maxPlayers - 1; j++) {
+                        if (scr_drawCell(tempX + (300 / global.maxPlayers * j), drawY + 45, global.numberPlayers - 2 == j, j + 2)) {
+                            global.numberPlayers = j + 2;
+                            
+                            if (global.numberPlayers != 4) global.teamsMode = false;
+                        }
+                    }
+                    break;
                 
-                if (global.onlyQuestion) global.gameMode = mode_normal;
-            }
-            break;
-            
-        case 3: //Game modes
-            scr_drawTextOutline(tempX, drawY - 45, "Game modes", c_white, c_black);
-            var modes = new_array("Normal", "Traditional");
-            
-            for (var j = 0; j &lt; array_length_1d(modes); j++) {
-                if (scr_drawCell(tempX + (300 / array_length_1d(modes) * j), drawY, global.gameMode == j, modes[j])) {
-                    global.gameMode = j;
+                case 1: //Specials frequency
+                    scr_drawTextOutline(tempX, drawY, "Specials frequency", c_white, c_black);
+                    var frequency = new_array("A", "H", "M", "L", "W");
                     
-                    if (global.gameMode == mode_traditional) global.onlyQuestion = false;
-                }
+                    for (var j = 0; j &lt; array_length_1d(frequency); j++) {
+                        if (scr_drawCell(tempX + (300 / array_length_1d(frequency) * j), drawY + 45, global.specialsFrequency == j, frequency[j])) {
+                            global.specialsFrequency = j;
+                            
+                            if (global.specialsFrequency != 0) global.onlyQuestion = false;
+                        }
+                    }
+                    break;
+                    
+                case 2: //Only ? cards
+                    if (scr_drawCell(tempX, drawY, global.onlyQuestion, "Only ? cards")) {
+                        global.onlyQuestion = !global.onlyQuestion;
+                        global.specialsFrequency = cond_exp(global.onlyQuestion, 0, global.specialsFrequency);
+                        
+                        if (global.onlyQuestion) global.gameMode = mode_normal;
+                    }
+                    break;
+                    
+                case 3: //Game modes
+                    scr_drawTextOutline(tempX, drawY - 45, "Game modes", c_white, c_black);
+                    var modes = new_array("Normal", "Traditional");
+                    
+                    for (var j = 0; j &lt; array_length_1d(modes); j++) {
+                        if (scr_drawCell(tempX + (300 / array_length_1d(modes) * j), drawY, global.gameMode == j, modes[j])) {
+                            global.gameMode = j;
+                            
+                            if (global.gameMode == mode_traditional) global.onlyQuestion = false;
+                        }
+                    }
+                    break;
+                    
+                case 4: //2 vs. 2
+                    if (scr_drawCell(tempX, drawY - 45, global.teamsMode, "2 vs. 2"))
+                        global.teamsMode = !global.teamsMode;
+                        
+                        if (global.teamsMode) global.numberPlayers = 4;
+                    break;
+                    
+                case 5: //Limited time
+                    if (scr_drawCell(tempX, drawY - 90, global.limitedAnswer, "Limited time")) {
+                        global.limitedAnswer = !global.limitedAnswer;
+                        
+                        if (global.limitedAnswer) global.limitedPlay = false;
+                    }
+                    
+                    if (scr_drawButton(tempX + 190, drawY - 90, 24, 24, c_yellow, "-")) global.maxAnswer = clamp(global.maxAnswer - 5, 5, 30);
+                    
+                    scr_drawButtonLogin(tempX + 190 + 24 + 5, drawY - 90, 51, 24, c_white, scr_formattedTime(global.maxAnswer));
+                    
+                    if (scr_drawButton(tempX + 275, drawY - 90, 24, 24, c_yellow, "+")) global.maxAnswer = clamp(global.maxAnswer + 5, 5, 30);
+                    break;
+                    
+                /*case 6: //Limited playtime
+                    if (scr_drawCell(tempX, drawY - 135, global.limitedPlay, "Limited playtime")) {
+                        global.limitedPlay = !global.limitedPlay;
+                        
+                        if (global.limitedPlay) global.limitedAnswer = false;
+                    }
+                    
+                    if (scr_drawButton(tempX + 190, drawY - 135, 24, 24, c_yellow, "-")) global.maxPlay = clamp(global.maxPlay - 30, 60, 60 * 8);
+                    
+                    scr_drawButtonLogin(tempX + 190 + 24 + 5, drawY - 135, 51, 24, c_white, scr_formattedTime(global.maxPlay));
+                    
+                    if (scr_drawButton(tempX + 275, drawY - 135, 24, 24, c_yellow, "+")) global.maxPlay = clamp(global.maxPlay + 30, 60, 60 * 8);
+                    break;*/
+                    
+                case 6:
+                    if (scr_drawButton(tempX, drawY - 135, 100, 30, c_orange, "Next"))
+                        currentPage++;
+                    break;
             }
-            break;
-            
-        case 4: //2 vs. 2
-            if (scr_drawCell(tempX, drawY - 45, global.teamsMode, "2 vs. 2"))
-                global.teamsMode = !global.teamsMode;
-                
-                if (global.teamsMode) global.numberPlayers = 4;
-            break;
-            
-        case 5: //Limited time
-            if (scr_drawCell(tempX, drawY - 90, global.limitedAnswer, "Limited time")) {
-                global.limitedAnswer = !global.limitedAnswer;
-                
-                if (global.limitedAnswer) global.limitedPlay = false;
+        }
+        break;
+        
+    case 1:
+        for (var i = 0; i &lt; 2; i++) {
+            draw_set_font(fnt_connection);
+            var drawY = optionsWindowY + (80 * i);
+        
+            switch (i) {
+                case 0:
+                    if (scr_drawButton(tempX, drawY, 100, 30, c_orange, "Previous"))
+                        currentPage--;
+                    break;
+                    
+                case 1: //Limited playtime
+                    if (scr_drawCell(tempX, drawY - 45, global.limitedPlay, "Limited playtime")) {
+                        //global.limitedPlay = !global.limitedPlay;
+                        
+                        //if (global.limitedPlay) global.limitedAnswer = false;
+                    }
+                    
+                    if (scr_drawButton(tempX + 190, drawY - 45, 24, 24, c_yellow, "-")) global.maxPlay = clamp(global.maxPlay - 30, 60, 60 * 8);
+                    
+                    scr_drawButtonLogin(tempX + 190 + 24 + 5, drawY - 45, 51, 24, c_white, scr_formattedTime(global.maxPlay));
+                    
+                    if (scr_drawButton(tempX + 275, drawY - 45, 24, 24, c_yellow, "+")) global.maxPlay = clamp(global.maxPlay + 30, 60, 60 * 8);
+                    break;
             }
-            
-            if (scr_drawButton(tempX + 190, drawY - 90, 24, 24, c_yellow, "-")) global.maxAnswer = clamp(global.maxAnswer - 5, 5, 30);
-            
-            scr_drawButtonLogin(tempX + 190 + 24 + 5, drawY - 90, 51, 24, c_white, scr_formattedTime(global.maxAnswer));
-            
-            if (scr_drawButton(tempX + 275, drawY - 90, 24, 24, c_yellow, "+")) global.maxAnswer = clamp(global.maxAnswer + 5, 5, 30);
-            break;
-            
-        case 6: //Limited playtime
-            if (scr_drawCell(tempX, drawY - 135, global.limitedPlay, "Limited playtime")) {
-                global.limitedPlay = !global.limitedPlay;
-                
-                if (global.limitedPlay) global.limitedAnswer = false;
-            }
-            
-            if (scr_drawButton(tempX + 190, drawY - 135, 24, 24, c_yellow, "-")) global.maxPlay = clamp(global.maxPlay - 30, 60, 60 * 8);
-            
-            scr_drawButtonLogin(tempX + 190 + 24 + 5, drawY - 135, 51, 24, c_white, scr_formattedTime(global.maxPlay));
-            
-            if (scr_drawButton(tempX + 275, drawY - 135, 24, 24, c_yellow, "+")) global.maxPlay = clamp(global.maxPlay + 30, 60, 60 * 8);
-            break;
-    }
+        }
+        break;
 }
 
 //Back

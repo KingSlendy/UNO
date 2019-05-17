@@ -55,6 +55,7 @@ global.cardColor = 2;
 global.leftTurns = false;
 global.playerTurn = 0;
 global.cardView = 0;
+global.teamView = 0;
 playerPositionX = undefined;
 playerPositionY = undefined;
 var tempPosX = undefined;
@@ -110,7 +111,14 @@ global.drew = false;
 global.changing = false;
 global.UNO = false;
 global.skipping = false;
+global.choosingColor = false;
 
+mainX = 0;
+mainY = 488;
+mainInfoY = 408;
+teamX = 0;
+teamY = 8;
+teamInfoY = 120;
 buttonX = 680;
 buttonUNOY = 360;
 buttonSkipY = 420;
@@ -257,6 +265,15 @@ if (global.timeLeft % 5 == 0) {
     
     global.gameInitial = true;
     
+    if (global.teamsMode) {
+        with (obj_networkPlayer) {
+            if (networkPlayerTeam == global.currentTeam) {
+                global.cardX[networkPlayerID] = 76;
+                global.cardY[networkPlayerID] = 64;
+            }
+        }
+    }
+    
     with (obj_cards) {
         if (status == stack_grab) {
             targets[global.playerID] = true;
@@ -291,10 +308,10 @@ var cardDistance = 44;
 var maxCards = 16;
 
 if (totalCards &gt; maxCards) {
-    if (scr_mouseInArea(0, 488, 66, 600))
+    if (scr_mouseInArea(0, mainY, 66, mainY + 112))
         global.cardView += 5;
     
-    if (scr_mouseInArea(734, 488, 800, 600))
+    if (scr_mouseInArea(734, mainY, 800, mainY + 112))
         global.cardView -= 5;
     
     global.cardView = clamp(global.cardView, -(cardDistance / 2) * (totalCards - maxCards), (cardDistance / 2) * (totalCards - maxCards));
@@ -444,58 +461,44 @@ draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_colour(c_black);
 //Your information
-scr_drawBox(0, 488, 800, 600, c_white, 1, c_black);
-scr_drawBox(0, 408, 200, 488, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == global.playerID, c_yellow, c_white), 1, c_black);
-draw_sprite(spr_playerIcon, 0, 16, 424);
-scr_drawTextOutline(38, 411, global.playerName, c_white, c_black);
-
-if (!global.teamsMode) {
-    draw_sprite(spr_cardIcon, 0, 14, 460);
-} else {
-    draw_sprite(spr_cardIcon, global.currentTeam + 1, 14, 460);
-}
-
-scr_drawTextOutline(30, 446, string(ds_list_size(global.cardList)), c_white, c_black);
-
-if (global.UNO) draw_sprite(spr_UNO, 0, 65, 446);
-
-if (global.limitedAnswer || global.limitedPlay) {
-    draw_sprite(spr_clock, 0, 120, 446);
-    scr_drawTextOutline(145, 446, scr_formattedTime(global.timeLeft), c_white, c_black);
-}
+scr_drawBox(mainX, mainY, mainX + 800, mainY + 112, c_white, 1, c_black);
+scr_playerInfo(mainX, mainInfoY, global.playerID, global.playerName, global.currentTeam, ds_list_size(global.cardList), global.UNO, global.timeLeft);
 
 //Other player's information
 with (obj_networkPlayer) {
-    var playerX = other.playerPositionX[networkPlayerID];
-    var playerY = other.playerPositionY[networkPlayerID];
-    scr_drawBox(playerX, playerY, playerX + 200, playerY + 140, cond_exp(global.gameStarted &amp;&amp; !global.gameFinished &amp;&amp; global.playerTurn == networkPlayerID, c_yellow, c_white), 1, c_black);
-    draw_sprite(spr_playerIcon, 0, playerX + 16, playerY + 16);
-    scr_drawTextOutline(playerX + 38, playerY + 3, networkPlayerName, c_white, c_black);
-    
-    if (!global.teamsMode) {
-        draw_sprite(spr_cardIcon, 0, playerX + 14, playerY + 52);
-    } else {
-        draw_sprite(spr_cardIcon, networkPlayerTeam + 1, playerX + 14, playerY + 52);
-    }
-    
     var cardSize = ds_list_size(networkPlayerCards);
-    scr_drawTextOutline(playerX + 30, playerY + 38, string(cardSize), c_white, c_black);
-    
-    for (var i = 0; i &lt; clamp(cardSize, 0, 14); i++)
-        draw_sprite_ext(spr_cards, cond_exp(global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam, ds_list_find_value(networkPlayerCards, i), 0), playerX + 22 + 12 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
 
-    if (networkPlayerUNO)
-        draw_sprite(spr_UNO, 0, playerX + 65, playerY + 38);
+    if (global.teamsMode &amp;&amp; networkPlayerTeam == global.currentTeam) {
+        scr_drawBox(other.teamX, other.teamY, other.teamX + 800, other.teamY + 112, c_white, 1, c_black);
+        scr_playerInfo(other.teamX + 600, other.teamInfoY, networkPlayerID, networkPlayerName, networkPlayerTeam, cardSize, networkPlayerUNO, networkPlayerTime);
+    
+        for (var i = 0; i &lt; cardSize; i++)
+            draw_sprite(spr_cards, ds_list_find_value(networkPlayerCards, i), clamp(76 + 44 * i - global.teamView, 76, 724), other.teamY + 56);
         
-    if (global.limitedAnswer || global.limitedPlay) {
-        draw_sprite(spr_clock, 0, playerX + 120, playerY + 38);
-        scr_drawTextOutline(playerX + 145, playerY + 38, scr_formattedTime(networkPlayerTime), c_white, c_black);
+        if (cardSize &gt; 16) {
+            if (scr_mouseInArea(0, other.teamY, 66, other.teamY + 112))
+                global.teamView += 5;
+            
+            if (scr_mouseInArea(734, other.teamY, 800, other.teamY + 112))
+                global.teamView -= 5;
+            
+            global.teamView = clamp(global.teamView, 0, 44 * (cardSize - 16));
+        }
+    } else {
+        var playerX = other.playerPositionX[networkPlayerID];
+        var playerY = other.playerPositionY[networkPlayerID];
+        scr_playerInfo(playerX, playerY, networkPlayerID, networkPlayerName, networkPlayerTeam, cardSize, networkPlayerUNO, networkPlayerTime);
+        
+        for (var i = 0; i &lt; clamp(cardSize, 0, 14); i++)
+            draw_sprite_ext(spr_cards, 0, playerX + 22 + 12 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
     }
 }
 
 //Middle information
 draw_sprite_ext(spr_dirTurns, 0, 400, 352, cond_exp(global.leftTurns, -1, 1), 1, 0, c_white, 1);
-draw_sprite(spr_cardColor, global.cardColor - 2, 400, 352);
+
+if (!global.choosingColor)
+    draw_sprite(spr_cardColor, global.cardColor - 2, 400, 352);
 
 //Waiting for players to join the game
 if (!global.gameStarted &amp;&amp; !global.gameInitial) {
@@ -524,12 +527,14 @@ if (!global.gameInitial &amp;&amp; global.gameStarted) {
     }
     
     //Skip Turn button
-    if (scr_drawButton(buttonX, buttonSkipY, 100, 50, cond_exp((global.drew &amp;&amp; !global.playingAnimation), c_red, c_gray), "Skip Turn")) {
-        if (global.drew &amp;&amp; !global.playingAnimation) {
-            with (obj_cards) {
-                if (status == stack_answer) {
-                    global.skipping = true;
-                    event_user(0);
+    if (global.gameMode != mode_traditional) {
+        if (scr_drawButton(buttonX, buttonSkipY, 100, 50, cond_exp((global.drew &amp;&amp; !global.playingAnimation), c_red, c_gray), "Skip Turn")) {
+            if (global.drew &amp;&amp; !global.playingAnimation) {
+                with (obj_cards) {
+                    if (status == stack_answer) {
+                        global.skipping = true;
+                        event_user(0);
+                    }
                 }
             }
         }

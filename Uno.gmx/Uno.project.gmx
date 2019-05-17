@@ -20,6 +20,7 @@
     <sprite>sprites\spr_UNO</sprite>
     <sprite>sprites\spr_clock</sprite>
     <sprite>sprites\sprite7</sprite>
+    <sprite>sprites\spr_chooseColors</sprite>
   </sprites>
   <backgrounds name="background"/>
   <paths name="paths"/>
@@ -35,6 +36,7 @@
       <script>scripts\scr_canAnswer.gml</script>
       <script>scripts\scr_shuffleCard.gml</script>
       <script>scripts\scr_updateCards.gml</script>
+      <script>scripts\scr_playerInfo.gml</script>
     </scripts>
     <scripts name="Extra">
       <script>scripts\scr_inRange.gml</script>
@@ -73,8 +75,8 @@
       <object>objects\obj_grabAnimation</object>
       <object>objects\obj_answerAnimation</object>
       <object>objects\obj_changeAnimation</object>
-      <object>objects\obj_stackArrow</object>
       <object>objects\obj_cursor</object>
+      <object>objects\obj_chooseColors</object>
     </objects>
   </objects>
   <rooms name="rooms">

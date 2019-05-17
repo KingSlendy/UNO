@@ -144,7 +144,19 @@ switch (action) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>image_xscale = cond_exp(target == global.playerID, 1, 0.5);
+            <string>var isTeam = false;
+
+if (global.teamsMode) {
+    with (obj_networkPlayer) {
+        if (networkPlayerID == other.target &amp;&amp; networkPlayerTeam == global.currentTeam) {
+            isTeam = true;
+        }
+    }
+}
+
+spd = clamp(spd, 1, 10);
+spd = point_distance(xstart, ystart, endX, endY) / spd;
+image_xscale = cond_exp(target == global.playerID || isTeam, 1, 0.5);
 image_yscale = image_xscale;
 visible = true;
 </string>

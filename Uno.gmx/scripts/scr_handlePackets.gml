@@ -119,7 +119,7 @@ switch (packetID) {
             if (answering) {
                 with (obj_networkPlayer) {
                     if (networkPlayerID == playerID) {
-                        scr_playAnimation(animation_grab, obj_gameController.playerPositionX[networkPlayerID] + 100, obj_gameController.playerPositionY[networkPlayerID] + 70, 496, 352, 12, 0, cardStack, playerID, false);
+                        scr_playAnimation(animation_grab, global.cardX[networkPlayerID], global.cardY[networkPlayerID], 496, 352, 12, 0, cardStack, playerID, false);
                     }
                 }
             }
@@ -160,7 +160,7 @@ switch (packetID) {
                 event_user(1);
             }
         }
-            
+        
         global.gameStarted = true;
         break;
         
