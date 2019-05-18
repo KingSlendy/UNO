@@ -308,6 +308,14 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
 
 if ((status == stack_grab || global.gameInitial) &amp;&amp; (!global.drew || global.gameMode == mode_traditional) &amp;&amp; global.sentNewCards == 0 &amp;&amp; !global.choosingColor &amp;&amp; !global.playingAnimation) {
     if (!global.gameInitial &amp;&amp; array_all(targets, false) &amp;&amp; global.playerTurn == global.playerID &amp;&amp; ds_list_size(global.cardList) &lt; 99) {
+        if (global.gameMode == mode_traditional) {
+            for (var i = 0; i &lt; ds_list_size(global.cardList); i++) {
+                if (scr_canAnswer(ds_list_find_value(global.cardList, i))) {
+                    exit;
+                }
+            }
+        }
+    
         targets[global.playerID] = true;
         newCards[global.playerID] = 1;
         global.drawing = true;
