@@ -30,6 +30,7 @@ surf = noone;
 surfLength = 0;
 surfY = 0;
 sending = "";
+notified = false;
 </string>
           </argument>
         </arguments>
@@ -56,9 +57,11 @@ sending = "";
     keyboard_string = sending;
     
     exit;
+} else {
+    notified = false;
 }
 
-if (string_length(sending) &lt; 48 || keyboard_key == vk_backspace) {
+if (string_length(sending) &lt; 100 || keyboard_key == vk_backspace) {
     sending = keyboard_string;
 } else {
     keyboard_string = sending;
@@ -83,8 +86,8 @@ if (string_length(sending) &lt; 48 || keyboard_key == vk_backspace) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (mouse_wheel_up()) surfY -= 10;
-else if (mouse_wheel_down()) surfY += 10;
+            <string>if (mouse_wheel_up()) surfY -= 20;
+else if (mouse_wheel_down()) surfY += 20;
 
 surfY = clamp(surfY, 0, surface_get_height(surf) - 250);
 </string>
@@ -109,7 +112,11 @@ surfY = clamp(surfY, 0, surface_get_height(surf) - 250);
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>surface_free(surf);
+            <string>//Updating message list
+surface_free(surf);
+draw_set_font(fnt_login);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
 
 surfLength = 0;
 
@@ -170,7 +177,10 @@ draw_set_valign(fa_top);
 var tempSend = string_interp("{0}: {1}", global.playerName, sending);
 scr_drawBox(0, 308, cond_exp(string_width(tempSend) &gt;= 300, string_width(tempSend), 300), 608, c_black, 0.8, c_white);
 
-if (!surface_exists(surf)) surf = surface_create(300, cond_exp(surfLength &gt;= 250, surfLength, 250));
+if (!surface_exists(surf)) {
+    surf = surface_create(300, cond_exp(surfLength &gt;= 250, surfLength, 250));
+    surfY = surface_get_height(surf) - 250;
+}
 
 surface_set_target(surf);
 draw_clear_alpha(c_white, 0);

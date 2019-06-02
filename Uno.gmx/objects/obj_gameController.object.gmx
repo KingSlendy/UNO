@@ -469,6 +469,8 @@ draw_set_colour(c_black);
 scr_drawBox(mainX, mainY, mainX + 800, mainY + 112, c_white, 1, c_black);
 scr_playerInfo(mainX, mainInfoY, global.playerID, global.playerName, global.currentTeam, ds_list_size(global.cardList), global.UNO, global.timeLeft);
 
+if (obj_chat.notified) draw_sprite(spr_notification, 0, mainX + 15, mainInfoY - 1);
+
 //Other player's information
 with (obj_networkPlayer) {
     var cardSize = ds_list_size(networkPlayerCards);

@@ -181,7 +181,7 @@ draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(an
 draw_set_font(fnt_connection);
 scr_drawTextOutline(5, 568, "Made by KingSlendy", c_white, c_black);
 draw_set_halign(fa_right);
-scr_drawTextOutline(800, 568, "v0.5.2.0", c_white, c_black);
+scr_drawTextOutline(800, 568, "v0.5.2.4", c_white, c_black);
 draw_set_halign(fa_left);
 
 //Temporary x coordinates
@@ -207,13 +207,13 @@ if (scr_drawButtonLogin(tempLoginX + 20, loginY + 100, 210, 25, cond_exp(loginSe
 if (buttonState == -1 &amp;&amp; mouse_check_button_pressed(mb_left)) loginSelected = 0;
     
 if (loginSelected == 1) {
-    if (string_length(global.playerName) &lt; 16 || string_length(keyboard_string) &lt; 16) {
+    if (string_length(global.playerName) &lt; 16 || keyboard_key == vk_backspace) {
         global.playerName = keyboard_string;
     } else {
         keyboard_string = global.playerName;
     }
 } else if (loginSelected == 2) {
-    if (string_length(global.ip) &lt; 16 || string_length(keyboard_string) &lt; 16) {
+    if (string_length(global.ip) &lt; 16 || keyboard_key == vk_backspace) {
         global.ip = keyboard_string;
     } else {
         keyboard_string = global.ip;

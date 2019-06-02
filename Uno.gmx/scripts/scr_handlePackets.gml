@@ -211,6 +211,7 @@ switch (packetID) {
             
             with (obj_chat) {
                 ds_list_add(messages, string_interp("{0}: {1}", playerName, sentMessage));
+                notified = true;
                 event_user(0);
             }
         }
