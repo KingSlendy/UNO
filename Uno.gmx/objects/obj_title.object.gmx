@@ -181,7 +181,7 @@ draw_sprite_ext(spr_title, 0, 400 - drawX, 186, 1, 1, -20 + 15 * cos(degtorad(an
 draw_set_font(fnt_connection);
 scr_drawTextOutline(5, 568, "Made by KingSlendy", c_white, c_black);
 draw_set_halign(fa_right);
-scr_drawTextOutline(800, 568, "v0.5.1.1", c_white, c_black);
+scr_drawTextOutline(800, 568, "v0.5.2.0", c_white, c_black);
 draw_set_halign(fa_left);
 
 //Temporary x coordinates

@@ -500,10 +500,12 @@ if (global.playerTurn == global.playerID || (global.gameInitial &amp;&amp; globa
                 usedBoomerang = true;
             } else if (array_contains(global.cardTypes[card_add4], cardStack)) {
                 sendCards = 4;
+            } else if (array_contains(global.cardTypes[card_skipall], cardStack)) {
+                turn = 0;
             }
         }
         
-        scr_incrementTurn(turn); 
+        scr_incrementTurn(turn);
     }
 
     buffer_seek(global.buffer, buffer_seek_start, 0);

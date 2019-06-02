@@ -30,8 +30,8 @@
 switch (global.gameMode) {
     default:
         global.cardTypes = new_array(
-            array_range(41, 35), //special
-            array_range(65, 11), //black
+            array_range(41, 36), //special
+            array_range(65, 12), //black
             new_array(1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61), //red
             new_array(2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62), //yellow
             new_array(3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63), //green
@@ -45,7 +45,8 @@ switch (global.gameMode) {
             array_range(65, 5), //color
             array_range(70, 5), //add 4
             new_array(75), //mystery
-            string_split(string_join(array_range(1, 52), ",") + ",65,70", ",") //traditional
+            string_split(string_join(array_range(1, 52), ",") + ",65,70", ","), //traditional
+            new_array(76) //skip all
         );
         break;
 }

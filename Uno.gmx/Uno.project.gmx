@@ -86,7 +86,7 @@
     <room>rooms\rm_title</room>
     <room>rooms\rm_uno</room>
   </rooms>
-  <constants number="26">
+  <constants number="27">
     <constant name="card_special">0</constant>
     <constant name="card_black">1</constant>
     <constant name="card_red">2</constant>
@@ -103,6 +103,7 @@
     <constant name="card_add4">13</constant>
     <constant name="card_mystery">14</constant>
     <constant name="cards_traditional">15</constant>
+    <constant name="card_skipall">16</constant>
     <constant name="stack_answer">0</constant>
     <constant name="stack_grab">1</constant>
     <constant name="stack_normal">2</constant>
