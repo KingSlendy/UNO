@@ -38,6 +38,7 @@ totalCards = 0;
 endAnimation = false;
 penaltyCards = false;
 choseColor = false;
+scr_setCardType();
 </string>
           </argument>
         </arguments>
@@ -246,7 +247,7 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
                 if (scr_canAnswer(other.image_index)) {
                     image_index = other.image_index;
                     
-                    if (image_index == global.cardTypes[card_mystery]) {
+                    if (array_contains(global.cardTypes[card_mystery], image_index)) {
                         image_index = array_pick(global.cardTypes[card_special]);
                         
                         if (irandom(4) == 0)
@@ -612,7 +613,7 @@ choseColor = false;
 
 if (status == stack_grab) {
     for (var i = 0; i &lt; 4; i++) {
-        draw_sprite_ext(spr_cards, 0, x, y, 1, 1, backAngle[i], c_white, 1);
+        draw_sprite_ext(sprite_index, 0, x, y, 1, 1, backAngle[i], c_white, 1);
     }
 }
 

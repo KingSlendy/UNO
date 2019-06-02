@@ -28,7 +28,9 @@ switch (packetID) {
         
         var player = global.players[sentID, player_object];
         player.playerName = sentName;
-        player.playerTeam = global.teams[sentID];
+        
+        if (global.numberPlayers < 5) player.playerTeam = global.teams[sentID];
+        
         global.playingGame[sentID] = true;
         
         for (var i = 0; i < global.maxPlayers; i++) {
@@ -235,6 +237,25 @@ switch (packetID) {
                 buffer_write(global.buffer, buffer_u8, packets.sentTime);
                 buffer_write(global.buffer, buffer_u8, sentID);
                 buffer_write(global.buffer, buffer_u16, timeLeft);
+                network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
+            }
+        }
+        break;
+        
+    case packets.chatMessage:
+        var sentID = buffer_read(buffer, buffer_u8);
+        var sentName = buffer_read(buffer, buffer_string);
+        var sentMessage = buffer_read(buffer, buffer_string);
+        
+        for (var i = 0; i < global.maxPlayers; i++) {
+            var socket = global.players[i, player_socket];
+            
+            if (socket != -1 && sentID != i) {
+                buffer_seek(global.buffer, buffer_seek_start, 0);
+                buffer_write(global.buffer, buffer_u8, packets.chatMessage);
+                buffer_write(global.buffer, buffer_u8, sentID);
+                buffer_write(global.buffer, buffer_string, sentName);
+                buffer_write(global.buffer, buffer_string, sentMessage);
                 network_send_packet(socket, global.buffer, buffer_tell(global.buffer));
             }
         }

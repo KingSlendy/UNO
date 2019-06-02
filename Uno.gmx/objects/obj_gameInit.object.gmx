@@ -8,6 +8,30 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="3" enumb="1">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (keyboard_check(vk_control) &amp;&amp; keyboard_check_pressed(ord("V")))
+    keyboard_string += clipboard_get_text();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="7" enumb="2">
       <action>
         <libid>1</libid>
@@ -55,7 +79,8 @@ enum packets {
     playerStopPlaying, //Sets the player sent to not playing
     canHostJoin, //Determines if the player can host/join
     sentUNO, //Player sent an UNO
-    sentTime //Remaining player time
+    sentTime, //Remaining player time
+    chatMessage //Handles chat messages
 }
 
 if (!instance_exists(obj_cursor))

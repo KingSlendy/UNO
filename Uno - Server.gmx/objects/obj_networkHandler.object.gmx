@@ -36,7 +36,7 @@ global.specialsFrecuency = 1;
 global.onlyQuestion = false;
 global.gameMode = 0;
 global.teamsMode = false;
-global.teams = new_array(team_red, team_red, team_blue, team_blue);
+global.teams = new_array(team_red, team_red, team_blue, team_blue, team_red);
 global.limitedAnswer = false;
 global.limitedPlay = false;
 global.maxAnswer = 20;
@@ -53,7 +53,8 @@ enum packets {
     playerStopPlaying, //Sets the player sent to not playing
     canHostJoin, //Determines if the player can host/join
     sentUNO, //Player sent an UNO
-    sentTime //Remaining player time
+    sentTime, //Remaining player time
+    chatMessage //Handles chat messages
 }
 </string>
           </argument>

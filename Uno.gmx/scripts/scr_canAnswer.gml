@@ -8,4 +8,6 @@ with (obj_cards) {
     }
 }
 
-return (array_contains(global.cardTypes[card_black], cardCheck) || array_contains(global.cardTypes[global.cardColor], cardCheck) || in_range(cardCheck, scr_cardDiv(cardStack), scr_cardDiv(cardStack) + 3));
+switch (global.gameMode) {
+    default: return (array_contains(global.cardTypes[card_black], cardCheck) || array_contains(global.cardTypes[global.cardColor], cardCheck) || in_range(cardCheck, scr_cardDiv(cardStack), scr_cardDiv(cardStack) + 3));
+}

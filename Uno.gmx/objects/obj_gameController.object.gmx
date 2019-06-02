@@ -27,24 +27,28 @@
             <kind>1</kind>
             <string>randomize();
 
-global.cardTypes = new_array(
-    array_range(41, 35), //special
-    array_range(65, 11), //black
-    new_array(1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61), //red
-    new_array(2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62), //yellow
-    new_array(3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63), //green
-    new_array(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64), //blue
-    array_range(41, 4), //skip
-    array_range(45, 4), //reverse
-    array_range(49, 4), //add 2
-    array_range(53, 4), //add 2 all
-    array_range(57, 4), //change
-    array_range(61, 4), //boomerang
-    array_range(65, 5), //color
-    array_range(70, 5), //add 4
-    75, //mystery
-    string_split(string_join(array_range(1, 52), ",") + ",65,70", ",") //traditional
-);
+switch (global.gameMode) {
+    default:
+        global.cardTypes = new_array(
+            array_range(41, 35), //special
+            array_range(65, 11), //black
+            new_array(1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61), //red
+            new_array(2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62), //yellow
+            new_array(3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63), //green
+            new_array(4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64), //blue
+            array_range(41, 4), //skip
+            array_range(45, 4), //reverse
+            array_range(49, 4), //add 2
+            array_range(53, 4), //add 2 all
+            array_range(57, 4), //change
+            array_range(61, 4), //boomerang
+            array_range(65, 5), //color
+            array_range(70, 5), //add 4
+            new_array(75), //mystery
+            string_split(string_join(array_range(1, 52), ",") + ",65,70", ",") //traditional
+        );
+        break;
+}
 
 global.cardList = ds_list_create();
 global.gameStarted = false;
@@ -473,7 +477,7 @@ with (obj_networkPlayer) {
         scr_playerInfo(other.teamX + 600, other.teamInfoY, networkPlayerID, networkPlayerName, networkPlayerTeam, cardSize, networkPlayerUNO, networkPlayerTime);
     
         for (var i = 0; i &lt; cardSize; i++)
-            draw_sprite(spr_cards, ds_list_find_value(networkPlayerCards, i), clamp(76 + 44 * i - global.teamView, 76, 724), other.teamY + 56);
+            draw_sprite(obj_cards.sprite_index, ds_list_find_value(networkPlayerCards, i), clamp(76 + 44 * i - global.teamView, 76, 724), other.teamY + 56);
         
         if (cardSize &gt; 16) {
             if (scr_mouseInArea(0, other.teamY, 66, other.teamY + 112))
@@ -490,7 +494,7 @@ with (obj_networkPlayer) {
         scr_playerInfo(playerX, playerY, networkPlayerID, networkPlayerName, networkPlayerTeam, cardSize, networkPlayerUNO, networkPlayerTime);
         
         for (var i = 0; i &lt; clamp(cardSize, 0, 14); i++)
-            draw_sprite_ext(spr_cards, 0, playerX + 22 + 12 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
+            draw_sprite_ext(obj_cards.sprite_index, 0, playerX + 22 + 12 * i, playerY + 104, 0.5, 0.5, 0, c_white, 1);
     }
 }
 

@@ -34,6 +34,7 @@ spawn = 0;
 target = 0;
 endAnim = false;
 alarm[1] = 1;
+scr_setCardType();
 </string>
           </argument>
         </arguments>

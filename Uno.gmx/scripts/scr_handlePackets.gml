@@ -202,6 +202,19 @@ switch (packetID) {
             }
         }
         break;
+        
+    case packets.chatMessage:
+        if (room == rm_uno) {
+            var playerID = buffer_read(buffer, buffer_u8);
+            var playerName = buffer_read(buffer, buffer_string);    
+            var sentMessage = buffer_read(buffer, buffer_string);
+            
+            with (obj_chat) {
+                ds_list_add(messages, string_interp("{0}: {1}", playerName, sentMessage));
+                event_user(0);
+            }
+        }
+        break;
           
     default: break;
 }

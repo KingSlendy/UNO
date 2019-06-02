@@ -33,6 +33,7 @@
       <script>scripts\scr_cardDiv.gml</script>
       <script>scripts\scr_playAnimation.gml</script>
       <script>scripts\scr_incrementTurn.gml</script>
+      <script>scripts\scr_setCardType.gml</script>
       <script>scripts\scr_canAnswer.gml</script>
       <script>scripts\scr_shuffleCard.gml</script>
       <script>scripts\scr_updateCards.gml</script>
@@ -43,6 +44,7 @@
       <script>scripts\scr_mouseInArea.gml</script>
       <script>scripts\scr_mouseInBox.gml</script>
       <script>scripts\scr_drawTextOutline.gml</script>
+      <script>scripts\scr_drawTextExtOutline.gml</script>
       <script>scripts\scr_drawBox.gml</script>
       <script>scripts\scr_drawButton.gml</script>
       <script>scripts\scr_drawButtonLogin.gml</script>
@@ -77,6 +79,7 @@
       <object>objects\obj_changeAnimation</object>
       <object>objects\obj_cursor</object>
       <object>objects\obj_chooseColors</object>
+      <object>objects\obj_chat</object>
     </objects>
   </objects>
   <rooms name="rooms">
