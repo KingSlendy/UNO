@@ -259,10 +259,12 @@ if (global.playerTurn == global.playerID &amp;&amp; !global.playingAnimation &am
                     
                         switch (blackCard) {
                             case 0: case 5:
-                                instance_create(400, 304, obj_chooseColors);
-                                
-                                obj_gameController.alarm[0] = 0;
-                                global.choosingColor = true;
+                                if (ds_list_size(global.cardList) &gt; 1) {
+                                    instance_create(400, 304, obj_chooseColors);
+                                    
+                                    obj_gameController.alarm[0] = 0;
+                                    global.choosingColor = true;
+                                }
                                 break;
                                 
                             case 1: case 2: case 3: case 4: global.cardColor = blackCard + 1; break;
